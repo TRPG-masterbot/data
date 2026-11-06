@@ -10,7 +10,7 @@
 
 <ul>
   <li>
-    <small>Qwen 모델 적용</small>
+    <small>Qwen3.5 4B 모델 적용</small>
   </li>
   <li>
     <small>룰북, 시나리오 RAG 파일 텍스트 출력 완료</small>
