@@ -1,4 +1,4 @@
-<h3>Prototype_Code_0.1.ipynb    -- (2026_11_05)</h3>
+<h3>Prototype_Code_0.1.ipynb    -- (2026_11_05 업로드)</h3>
 
 <ul>
   <li>
@@ -6,7 +6,7 @@
   </li>
 </ul>
 
-<h3>rag_test.ipynb    -- (2026_10_30)</h3>
+<h3>rag_test.ipynb    -- (2026_10_30 업로드)</h3>
 
 <ul>
   <li>
