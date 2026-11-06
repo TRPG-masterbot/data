@@ -2,7 +2,7 @@
 
 <ul>
   <li>
-    <small>룰북RAG 5</small>
+    <small>RuleRAG 수정본</small>
   </li>
 </ul>
 
@@ -10,7 +10,7 @@
 
 <ul>
   <li>
-    <small>RuleRAG 진행중</small>
+    <small>RuleRAG 초기 버전</small>
   </li>
 </ul>
 
@@ -18,6 +18,6 @@
 
 <ul>
   <li>
-    <small>Ollama 기반 RuleRAG</small>
+    <small>AI생성 RuleRAG_폐기본</small>
   </li>
 </ul>
