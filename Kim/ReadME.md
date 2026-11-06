@@ -1,3 +1,10 @@
+<h3>Kim/TheDrownedBell/game.ipynb     -- (2026_11_06 업로드)</h3>
+<ul>
+  <li>
+    <small>게임 로직 챕터3까지 구현(코드 블랙박스화 유력).ipynb</small>
+  </li>
+</ul>
+
 <h3>Prototype_Code_0.1.ipynb    -- (2026_11_05 업로드)</h3>
 
 <ul>
