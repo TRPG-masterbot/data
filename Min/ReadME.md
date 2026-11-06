@@ -30,6 +30,6 @@
 
 <ul>
   <li>
-    <small>AI생성 RuleRAG_폐기본</small>
+    <small>개발 중단</small>
   </li>
 </ul>
