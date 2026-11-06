@@ -6,6 +6,8 @@
   </li>
   <li>
     <small>engine.py (진행·선택지·상태 처리) / combat.py (전투) / dice.py (주사위)
+  </li>
+  <li>
     <model.py (상태 데이터) / content.py (JSON 불러오기) / events.py (선택지·이벤트 형식)</small>
   </li>
   <li>
