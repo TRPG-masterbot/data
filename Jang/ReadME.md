@@ -1,3 +1,23 @@
+<h3>Prototype_Code_0.2_ver.ipynb    -- (2026_11_06 업로드)</h3>
+
+<ul>
+  <li>
+    <small>0.1 version을 기반으로 개선됨.</small>
+  </li>
+  <li>
+    <small>정해진 조건에 따른 시나리오를 AI가 직접 생성(JSON)</small>
+  </li>
+  <li>
+    <small>한국어 교정 함수 추가 (한자 / 영어 부분)</small>
+  </li>
+  <li>
+    <small>대화형 텍스트 출력 방식으로 변경 (실시간 스트리밍)</small>
+  </li>
+  <li>
+    <small>검증 기능 일부 개선</small>
+  </li>
+</ul>
+
 <h3>Prototype Code_0.1_ver.ipynb    -- (2026_11_05 업로드)</h3>
 
 <ul>
