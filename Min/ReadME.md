@@ -1,4 +1,4 @@
-<h3>ScenarioRAG.ipynb</b> -- (2026_11_09 업로드)</h3>
+<h3>TRPG_GM_v1.0.ipynb-- (2026_11_09 업로드)</h3>
 <ul>
   <li>시나리오 "잠긴 종" 기반 싱글 플레이 GM 챗봇 (RuleRAG_basic_v1.0 연결)</li>
   <li>시나리오 RAG: Chroma, 문서 166개, 장면·직업·flag·방 필터를 검색 전에 적용 (누설 0건)</li>
