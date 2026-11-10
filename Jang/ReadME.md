@@ -1,3 +1,20 @@
+<h3>Prototype_Code_0.3_ver.ipynb    -- (2026_11_11 업로드)</h3>
+
+<ul>
+  <li>
+    <small>0.2 version을 기반으로 개선됨.</small>
+  </li>
+  <li>
+    <small>캐릭터 상태창 추가</small>
+  </li>
+  <li>
+    <small>NPC의 행동 제안 프롬프트 추가</small>
+  </li>
+  <li>
+    <small>한국어 교정 함수 개선 (temperature, top_p)</small>
+  </li>
+</ul>
+
 <h3>Prototype_Code_0.2_ver.ipynb    -- (2026_11_06 업로드)</h3>
 
 <ul>
