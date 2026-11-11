@@ -36,6 +36,5 @@ python -m venv .venv
 ## 코드와 판본
 
 - `demo/app.py`는 입력을 분류하고, `demo/rag.py`는 근거를 검색해 모델에 전달합니다. 로컬 게임의 룰북 검색은 글자 조각을 비교하는 방식입니다. Colab 룰북 노트북은 의미 검색과 키워드 검색을 비교합니다.
-- `demo/game/`은 [Kim의 팀 게임 엔진과 데이터](../Kim/TheDrownedBell/game)를 사용합니다. 룰 질문은 한국어 베이직 룰 2018년판으로 답하며, 엔진의 일부 판정에는 SRD 5.2가 반영돼 판본별 결과가 다를 수 있습니다.
 
 This work includes material from the System Reference Document 5.2 by Wizards of the Coast LLC under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/legalcode).
