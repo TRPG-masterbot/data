@@ -1,0 +1,355 @@
+[
+ {
+  "set": "golden",
+  "q": "How much does cover improve a target's Armor Class?",
+  "want": "Cover"
+ },
+ {
+  "set": "golden",
+  "q": "When does moving away from an enemy provoke an attack?",
+  "want": "Opportunity Attacks"
+ },
+ {
+  "set": "golden",
+  "q": "How much movement does it cost to stand up after being knocked down?",
+  "want": "Prone"
+ },
+ {
+  "set": "golden",
+  "q": "How far does a torch shed bright light?",
+  "want": "Torch"
+ },
+ {
+  "set": "golden",
+  "q": "What happens if I shoot a bow while an enemy is right next to me?",
+  "want": "Ranged Attacks in Close Combat"
+ },
+ {
+  "set": "golden",
+  "q": "How is Concentration on a spell broken?",
+  "want": "Concentration"
+ },
+ {
+  "set": "golden",
+  "q": "How many failed death saving throws kill a character?",
+  "want": "Death Saving Throw"
+ },
+ {
+  "set": "golden",
+  "q": "Do temporary hit points stack with each other?",
+  "want": [
+   "Temporary Hit Points",
+   "They Don’t Stack"
+  ]
+ },
+ {
+  "set": "golden",
+  "q": "If a creature grabs hold of me, what condition am I under and what does it do?",
+  "want": "Grappl"
+ },
+ {
+  "set": "golden",
+  "q": "What does taking the Dodge action do?",
+  "want": "Dodge"
+ },
+ {
+  "set": "golden",
+  "q": "How long is a short rest?",
+  "want": "Short Rest"
+ },
+ {
+  "set": "golden",
+  "q": "How much weight can a character carry based on Strength?",
+  "want": "Carrying Capacity"
+ },
+ {
+  "set": "golden",
+  "q": "How does difficult terrain affect movement speed?",
+  "want": "Difficult Terrain"
+ },
+ {
+  "set": "golden",
+  "q": "How much damage do you take from falling?",
+  "want": "Falling"
+ },
+ {
+  "set": "golden",
+  "q": "How does the Exhaustion condition affect a creature?",
+  "want": "Exhaustion"
+ },
+ {
+  "set": "golden",
+  "q": "What happens to a creature that is surprised when combat starts?",
+  "want": "Surprise"
+ },
+ {
+  "set": "golden",
+  "q": "What can a blinded creature do?",
+  "want": "Blinded"
+ },
+ {
+  "set": "golden",
+  "q": "What does the Help action let an ally do?",
+  "want": "Help"
+ },
+ {
+  "set": "golden",
+  "q": "How is extra damage from a critical hit calculated?",
+  "want": "Critical Hit"
+ },
+ {
+  "set": "golden",
+  "q": "What roll do you make to hide from enemies?",
+  "want": "Hide"
+ },
+ {
+  "set": "golden",
+  "q": "How far can a creature with darkvision see in the dark?",
+  "want": "Darkvision"
+ },
+ {
+  "set": "golden",
+  "q": "What does being invisible actually give you mechanically?",
+  "want": "Invisible"
+ },
+ {
+  "set": "golden",
+  "q": "What is the difficulty class for a very hard task?",
+  "want": "Difficulty Class"
+ },
+ {
+  "set": "golden",
+  "q": "Can you take a bonus action and an action on the same turn?",
+  "want": "Bonus Action"
+ },
+ {
+  "set": "golden",
+  "q": "When you roll two d20s and keep the higher result, what is that called?",
+  "want": [
+   "Advantage",
+   "Roll Two D20s"
+  ]
+ },
+ {
+  "set": "golden_ko",
+  "q": "독에 중독되면 뭐가 불리해져?",
+  "want": "Poisoned"
+ },
+ {
+  "set": "golden_ko",
+  "q": "몸이 마비되면 공격받을 때 어떻게 돼?",
+  "want": "Paralyzed"
+ },
+ {
+  "set": "golden_ko",
+  "q": "겁에 질린 상태에서는 적한테 다가갈 수 있어?",
+  "want": "Frightened"
+ },
+ {
+  "set": "golden_ko",
+  "q": "기절하면 움직이거나 말할 수 있어?",
+  "want": "Stunned"
+ },
+ {
+  "set": "golden_ko",
+  "q": "의식을 잃으면 들고 있던 걸 떨어뜨려?",
+  "want": "Unconscious"
+ },
+ {
+  "set": "golden_ko",
+  "q": "밧줄에 묶여서 움직일 수 없으면 무슨 상태야?",
+  "want": "Restrained"
+ },
+ {
+  "set": "golden_ko",
+  "q": "매료된 상태에서 나를 홀린 상대를 공격해도 돼?",
+  "want": "Charmed"
+ },
+ {
+  "set": "golden_ko",
+  "q": "행동 불능이 되면 뭘 못 해?",
+  "want": "Incapacitated"
+ },
+ {
+  "set": "golden_ko",
+  "q": "긴 휴식은 몇 시간 쉬어야 해?",
+  "want": "Long Rest"
+ },
+ {
+  "set": "golden_ko",
+  "q": "전투 시작할 때 누가 먼저 움직일지 어떻게 정해?",
+  "want": "Initiative"
+ },
+ {
+  "set": "golden_ko",
+  "q": "이번 턴에 더 멀리 이동하려면 무슨 행동을 해?",
+  "want": "Dash"
+ },
+ {
+  "set": "golden_ko",
+  "q": "적한테 기회 공격 안 맞고 도망가려면?",
+  "want": "Disengage"
+ },
+ {
+  "set": "golden_ko",
+  "q": "상대가 뭔가 하면 그때 반응해서 행동하려면 어떻게 해?",
+  "want": "Ready"
+ },
+ {
+  "set": "golden_ko",
+  "q": "숨겨진 걸 찾으려면 어떤 행동을 해야 해?",
+  "want": "Search"
+ },
+ {
+  "set": "golden_ko",
+  "q": "상대를 설득하거나 협박하려면 무슨 행동이야?",
+  "want": "Influence"
+ },
+ {
+  "set": "golden_ko",
+  "q": "주문을 쓰는 행동은 뭐라고 불러?",
+  "want": "Magic"
+ },
+ {
+  "set": "golden_ko",
+  "q": "물건을 쓰는 데도 행동이 필요해?",
+  "want": "Utilize"
+ },
+ {
+  "set": "golden_ko",
+  "q": "물속에서 싸우면 무기에 제한이 있어?",
+  "want": "Underwater Combat"
+ },
+ {
+  "set": "golden_ko",
+  "q": "말을 타고 싸울 때 규칙이 있어?",
+  "want": "Mounted Combat"
+ },
+ {
+  "set": "golden_ko",
+  "q": "안개가 짙은 곳에서는 시야가 어떻게 돼?",
+  "want": "Heavily Obscured"
+ },
+ {
+  "set": "golden_ko",
+  "q": "어슴푸레한 숲에서는 보이는 게 어때?",
+  "want": "Lightly Obscured"
+ },
+ {
+  "set": "golden_ko",
+  "q": "피해에 저항이 있으면 얼마나 줄어?",
+  "want": "Resistance"
+ },
+ {
+  "set": "golden_ko",
+  "q": "약점이 있는 몬스터는 피해를 얼마나 더 받아?",
+  "want": "Vulnerability"
+ },
+ {
+  "set": "golden_ko",
+  "q": "화살통에는 화살이 몇 개 들어가?",
+  "want": "Quiver"
+ },
+ {
+  "set": "golden_ko",
+  "q": "작은 유리병에는 몇 온스가 들어가?",
+  "want": "Vial"
+ },
+ {
+  "set": "golden_ko",
+  "q": "무작위 효과가 나오는 마법 지팡이가 있어?",
+  "want": "Wand of Wonder"
+ },
+ {
+  "set": "golden_ko",
+  "q": "탈것으로 쓰는 말은 얼마야?",
+  "want": "Riding Horse"
+ },
+ {
+  "set": "golden_ko",
+  "q": "숙련을 두 배로 쓰는 건 뭐야?",
+  "want": "Expertise"
+ },
+ {
+  "set": "golden_new",
+  "q": "전투 중에 기습당하면 어떻게 돼?",
+  "want": "Surprise"
+ },
+ {
+  "set": "golden_new",
+  "q": "쉬어서 체력을 회복하려면 시간이 얼마나 걸려?",
+  "want": [
+   "Short Rest",
+   "Long Rest"
+  ]
+ },
+ {
+  "set": "golden_new",
+  "q": "밤새 푹 자면 얼마나 회복돼?",
+  "want": "Long Rest"
+ },
+ {
+  "set": "golden_new",
+  "q": "높은 데서 뛰어내리면 얼마의 피해를 받지?",
+  "want": "Falling"
+ },
+ {
+  "set": "golden_new",
+  "q": "분노하면 어떤 이득이 있어?",
+  "want": "Level 1: Rage"
+ },
+ {
+  "set": "golden_new",
+  "q": "짐을 얼마나 들고 다닐 수 있어?",
+  "want": "Carrying Capacity"
+ },
+ {
+  "set": "golden_new",
+  "q": "주사위가 최고로 나오면 피해가 더 들어가?",
+  "want": "Critical Hit"
+ },
+ {
+  "set": "golden_new",
+  "q": "무기 두 개를 양손에 들고 싸울 수 있어?",
+  "want": [
+   "Light",
+   "Two-Weapon Fighting"
+  ]
+ },
+ {
+  "set": "golden_new",
+  "q": "말을 타고 싸울 때 규칙이 달라져?",
+  "want": [
+   "Mounted Combat",
+   "Mounting and Dismounting"
+  ]
+ },
+ {
+  "set": "golden_new",
+  "q": "상대의 마법을 막는 마법 있어?",
+  "want": "Counterspell"
+ },
+ {
+  "set": "golden_new",
+  "q": "불을 만드는 마법이 있어?",
+  "want": [
+   "Produce Flame",
+   "Flame Blade",
+   "Fire Bolt",
+   "Burning Hands"
+  ]
+ },
+ {
+  "set": "golden_new",
+  "q": "힐은 얼마나 회복시켜?",
+  "want": [
+   "Cure Wounds",
+   "Healing Word"
+  ]
+ },
+ {
+  "set": "golden_new",
+  "q": "상자인 척하다가 덮치는 몬스터가 있어?",
+  "want": "Mimic"
+ }
+]
