@@ -1,3 +1,20 @@
+<h3>Input_Code_0.1_ver.ipynb    -- (2026_11_12 업로드)</h3>
+
+<ul>
+  <li>
+    <small>RULE / SCENARIO RAG 키워드 검색 / 벡터 기반 검색 함수</small>
+  </li>
+  <li>
+    <small>통합된 JSON 파일을 생성</small>
+  </li>
+  <li>
+    <small>다중 질의 생성 / DUAL RAG 검색 / Context 정리 / RRF</small>
+  </li>
+  <li>
+    <small>시나리오 RAG 부분과 RRF 부분부터 블랙박스 형태로 작성해 불안정한 상태</small>
+  </li>
+</ul>
+
 <h3>Prototype_Code_0.3_ver.ipynb    -- (2026_11_11 업로드)</h3>
 
 <ul>
