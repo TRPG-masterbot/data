@@ -1,3 +1,18 @@
+<h3>Kim/sce_RAG_시나리오전용.ipynb    -- (2026_11_12 업로드)</h3>
+
+<ul>
+  <li>
+    <small>시나리오 RAG Colab 노트북 (룰북 제외). 지금 플레이어가 볼 수 있는 카드만 검색</small>
+  </li>
+  <li>
+    <small>can_search (장면·방·직업 필터) / 카드 1장 = 청크 1개 / Chroma 저장 / search (상태 필터 검색)<br>
+    골든셋 평가: 필터 적용 시 Hit@1 0.43 → 0.64, GM 문장 누설 0건</small>
+  </li>
+  <li>
+    <small>narrate_scene (Qwen 장면 서술) 포함. 서술 품질 개선·룰북 RAG와 통합은 미구현</small>
+  </li>
+</ul>
+
 <h3>TheDrownedBell/game/    -- (2026_11_06 업로드)</h3>
 
 <ul>
