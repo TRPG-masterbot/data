@@ -1,6 +1,36 @@
-<h3>Input_Code_0.1_ver.ipynb    -- (2026_11_12 업로드)</h3>
+<h3>Input_Code_0.1_ver.ipynb    -- (2026_11_13 업로드)</h3>
 
 <ul>
+  <li>
+    <small>RULE / SCENARIO RAG .py 파일로 import</small>
+  </li>
+  <li>
+    <small>RAG 초기화</small>
+  </li>
+  <li>
+    <small>입력 처리 (main.py)</small>
+  </li>
+  <li>
+    <small>입력 데이터 분석 (RULE, SCENARIO, BOTH) - (query_router.py)</small>
+  </li>
+  <li>
+    <small>RAG 내부의 함수로 검색 ( rule_rag.retrieve() , sce_rag.retrieve() )</small>
+  </li>
+  <li>
+    <small>검색 결과 통합 (rag_bridge.py)</small>
+  </li>
+  <li>
+    <small>LLM 에게 최종 Context 전달 (handoff.py)</small>
+  </li>
+  <li>
+    <small>AI 생성 코드로 불안정한 상태 - 추후 코드 수정 및 재구축 예정</small>
+  </li>
+  <li>
+
+  </li>
+  <li>
+    <small>---- (2026_11_12 업로드) ----</small>
+  </li>
   <li>
     <small>RULE / SCENARIO RAG 키워드 검색 / 벡터 기반 검색 함수</small>
   </li>
