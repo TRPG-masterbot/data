@@ -1,3 +1,18 @@
+<h3>RuleRAG_basic_v1.5.ipynb -- (2026_11_13 업로드)</h3>
+<ul>
+  <li>검색 DB: FAISS → Chroma</li>
+  <li>설명은 GM이, 룰 RAG는 근거만 → <code>evidence(질문)</code></li>
+  <li>속도: 질문당 8.2초 → 1.3초 (번역·검증 동시 실행)</li>
+  <li>LangGraph 적용 (검색 → 근거 선택 → 검증 → 근거 or 거절)</li>
+  <li>검색 DB: FAISS → Chroma</li>
+  <li>검증: 고른 근거가 틀리면 다음 후보도 확인 (거절 25 → 9)</li>
+  <li>긴 규칙: 나눠서 검색하고, 근거는 원본 전체로</li>
+  <li>번역에 섞인 한자 제거</li>
+  <li>용어표 정리 (규칙 용어 200개)</li>
+  <li>깃허브 연동</li>
+  <li>개발 질문 66 → 149문항: 검색 1등 93 / 근거 정답 116 / 거절 9</li>
+</ul>
+
 <h3>RuleRAG_basic_v1.2.ipynb -- (2026_11_12 업로드)</h3>
 <ul>
   <li>v1.0 가독성 정리 버전 (기능·결과 동일)</li>
