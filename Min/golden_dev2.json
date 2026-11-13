@@ -1,0 +1,933 @@
+[
+ {
+  "set": "golden",
+  "q": "How much does cover improve a target's Armor Class?",
+  "want": "Cover"
+ },
+ {
+  "set": "golden",
+  "q": "When does moving away from an enemy provoke an attack?",
+  "want": "Opportunity Attacks"
+ },
+ {
+  "set": "golden",
+  "q": "How much movement does it cost to stand up after being knocked down?",
+  "want": "Prone"
+ },
+ {
+  "set": "golden",
+  "q": "How far does a torch shed bright light?",
+  "want": "Torch"
+ },
+ {
+  "set": "golden",
+  "q": "What happens if I shoot a bow while an enemy is right next to me?",
+  "want": "Ranged Attacks in Close Combat"
+ },
+ {
+  "set": "golden",
+  "q": "How is Concentration on a spell broken?",
+  "want": "Concentration"
+ },
+ {
+  "set": "golden",
+  "q": "How many failed death saving throws kill a character?",
+  "want": "Death Saving Throw"
+ },
+ {
+  "set": "golden",
+  "q": "Do temporary hit points stack with each other?",
+  "want": [
+   "Temporary Hit Points",
+   "They Don’t Stack"
+  ]
+ },
+ {
+  "set": "golden",
+  "q": "If a creature grabs hold of me, what condition am I under and what does it do?",
+  "want": "Grapplled"
+ },
+ {
+  "set": "golden",
+  "q": "What does taking the Dodge action do?",
+  "want": "Dodge"
+ },
+ {
+  "set": "golden",
+  "q": "How long is a short rest?",
+  "want": "Short Rest"
+ },
+ {
+  "set": "golden",
+  "q": "How much weight can a character carry based on Strength?",
+  "want": "Carrying Capacity"
+ },
+ {
+  "set": "golden",
+  "q": "How does difficult terrain affect movement speed?",
+  "want": "Difficult Terrain"
+ },
+ {
+  "set": "golden",
+  "q": "How much damage do you take from falling?",
+  "want": "Falling"
+ },
+ {
+  "set": "golden",
+  "q": "How does the Exhaustion condition affect a creature?",
+  "want": "Exhaustion"
+ },
+ {
+  "set": "golden",
+  "q": "What happens to a creature that is surprised when combat starts?",
+  "want": "Surprise"
+ },
+ {
+  "set": "golden",
+  "q": "What can a blinded creature do?",
+  "want": "Blinded"
+ },
+ {
+  "set": "golden",
+  "q": "What does the Help action let an ally do?",
+  "want": "Help"
+ },
+ {
+  "set": "golden",
+  "q": "How is extra damage from a critical hit calculated?",
+  "want": "Critical Hit"
+ },
+ {
+  "set": "golden",
+  "q": "What roll do you make to hide from enemies?",
+  "want": "Hide"
+ },
+ {
+  "set": "golden",
+  "q": "How far can a creature with darkvision see in the dark?",
+  "want": "Darkvision"
+ },
+ {
+  "set": "golden",
+  "q": "What does being invisible actually give you mechanically?",
+  "want": "Invisible"
+ },
+ {
+  "set": "golden",
+  "q": "What is the difficulty class for a very hard task?",
+  "want": "Difficulty Class"
+ },
+ {
+  "set": "golden",
+  "q": "Can you take a bonus action and an action on the same turn?",
+  "want": "Bonus Action"
+ },
+ {
+  "set": "golden",
+  "q": "When you roll two d20s and keep the higher result, what is that called?",
+  "want": [
+   "Advantage",
+   "Roll Two D20s"
+  ]
+ },
+ {
+  "set": "golden_ko",
+  "q": "독에 중독되면 뭐가 불리해져?",
+  "want": "Poisoned"
+ },
+ {
+  "set": "golden_ko",
+  "q": "몸이 마비되면 공격받을 때 어떻게 돼?",
+  "want": "Paralyzed"
+ },
+ {
+  "set": "golden_ko",
+  "q": "겁에 질린 상태에서는 적한테 다가갈 수 있어?",
+  "want": "Frightened"
+ },
+ {
+  "set": "golden_ko",
+  "q": "기절하면 움직이거나 말할 수 있어?",
+  "want": "Stunned"
+ },
+ {
+  "set": "golden_ko",
+  "q": "의식을 잃으면 들고 있던 걸 떨어뜨려?",
+  "want": "Unconscious"
+ },
+ {
+  "set": "golden_ko",
+  "q": "밧줄에 묶여서 움직일 수 없으면 무슨 상태야?",
+  "want": "Restrained"
+ },
+ {
+  "set": "golden_ko",
+  "q": "매료된 상태에서 나를 홀린 상대를 공격해도 돼?",
+  "want": "Charmed"
+ },
+ {
+  "set": "golden_ko",
+  "q": "행동 불능이 되면 뭘 못 해?",
+  "want": "Incapacitated"
+ },
+ {
+  "set": "golden_ko",
+  "q": "긴 휴식은 몇 시간 쉬어야 해?",
+  "want": "Long Rest"
+ },
+ {
+  "set": "golden_ko",
+  "q": "전투 시작할 때 누가 먼저 움직일지 어떻게 정해?",
+  "want": "Initiative"
+ },
+ {
+  "set": "golden_ko",
+  "q": "이번 턴에 더 멀리 이동하려면 무슨 행동을 해?",
+  "want": "Dash"
+ },
+ {
+  "set": "golden_ko",
+  "q": "적한테 기회 공격 안 맞고 도망가려면?",
+  "want": ["Disengage", "Opportunity Attacks"]
+ },
+ {
+  "set": "golden_ko",
+  "q": "상대가 뭔가 하면 그때 반응해서 행동하려면 어떻게 해?",
+  "want": "Ready"
+ },
+ {
+  "set": "golden_ko",
+  "q": "숨겨진 걸 찾으려면 어떤 행동을 해야 해?",
+  "want": "Search"
+ },
+ {
+  "set": "golden_ko",
+  "q": "상대를 설득하거나 협박하려면 무슨 행동이야?",
+  "want": "Influence"
+ },
+ {
+  "set": "golden_ko",
+  "q": "주문을 쓰는 행동은 뭐라고 불러?",
+  "want": "Magic"
+ },
+ {
+  "set": "golden_ko",
+  "q": "물건을 쓰는 데도 행동이 필요해?",
+  "want": "Utilize"
+ },
+ {
+  "set": "golden_ko",
+  "q": "물속에서 싸우면 무기에 제한이 있어?",
+  "want": ["Underwater Combat", "Impeded Weapons"]
+ },
+ {
+  "set": "golden_ko",
+  "q": "말을 타고 싸울 때 규칙이 있어?",
+  "want": "Mounted Combat"
+ },
+ {
+  "set": "golden_ko",
+  "q": "안개가 짙은 곳에서는 시야가 어떻게 돼?",
+  "want": ["Heavily Obscured", "Obscured Areas"]
+ },
+ {
+  "set": "golden_ko",
+  "q": "빛이 잘 안드는 숲에서는 보이는 게 어때?",
+  "want": ["Lightly Obscured", "Obscured Areas"]
+ },
+ {
+  "set": "golden_ko",
+  "q": "피해에 저항이 있으면 얼마나 줄어?",
+  "want": "Resistance"
+ },
+ {
+  "set": "golden_ko",
+  "q": "약점이 있는 몬스터는 피해를 얼마나 더 받아?",
+  "want": ["Vulnerability", "Resistance and Vulnerability"]
+ },
+ {
+  "set": "golden_ko",
+  "q": "화살통에는 화살이 몇 개 들어가?",
+  "want": "Quiver"
+ },
+ {
+  "set": "golden_ko",
+  "q": "작은 유리병에는 몇 온스가 들어가?",
+  "want": "Vial"
+ },
+ {
+  "set": "golden_ko",
+  "q": "무작위 효과가 나오는 마법 지팡이가 있어?",
+  "want": "Wand of Wonder"
+ },
+ {
+  "set": "golden_ko",
+  "q": "탈것으로 쓰는 말은 얼마야?",
+  "want": "Riding Horse"
+ },
+ {
+  "set": "golden_ko",
+  "q": "숙련을 두 배로 쓰는 건 뭐야?",
+  "want": "Expertise"
+ },
+ {
+  "set": "golden_new",
+  "q": "전투 중에 기습당하면 어떻게 돼?",
+  "want": "Surprise"
+ },
+ {
+  "set": "golden_new",
+  "q": "쉬어서 체력을 회복하려면 시간이 얼마나 걸려?",
+  "want": [
+   "Short Rest",
+   "Long Rest"
+  ]
+ },
+ {
+  "set": "golden_new",
+  "q": "밤새 푹 자면 얼마나 회복돼?",
+  "want": "Long Rest"
+ },
+ {
+  "set": "golden_new",
+  "q": "높은 데서 뛰어내리면 얼마의 피해를 받지?",
+  "want": "Falling"
+ },
+ {
+  "set": "golden_new",
+  "q": "분노하면 어떤 이득이 있어?",
+  "want": "Level 1: Rage"
+ },
+ {
+  "set": "golden_new",
+  "q": "짐을 얼마나 들고 다닐 수 있어?",
+  "want": "Carrying Capacity"
+ },
+ {
+  "set": "golden_new",
+  "q": "주사위가 최고로 나오면 피해가 더 들어가?",
+  "want": "Critical Hit"
+ },
+ {
+  "set": "golden_new",
+  "q": "무기 두 개를 양손에 들고 싸울 수 있어?",
+  "want": [
+   "Light",
+   "Two-Weapon Fighting"
+  ]
+ },
+ {
+  "set": "golden_new",
+  "q": "말을 타고 싸울 때 규칙이 달라져?",
+  "want": [
+   "Mounted Combat",
+   "Mounting and Dismounting"
+  ]
+ },
+ {
+  "set": "golden_new",
+  "q": "상대의 마법을 막는 마법 있어?",
+  "want": "Counterspell"
+ },
+ {
+  "set": "golden_new",
+  "q": "불을 만드는 마법이 있어?",
+  "want": [
+   "Produce Flame",
+   "Flame Blade",
+   "Fire Bolt",
+   "Burning Hands"
+  ]
+ },
+ {
+  "set": "golden_new",
+  "q": "힐은 얼마나 회복시켜?",
+  "want": [
+   "Cure Wounds",
+   "Healing Word"
+  ]
+ },
+ {
+  "set": "golden_new",
+  "q": "상자인 척하다가 덮치는 몬스터가 있어?",
+  "want": "Mimic"
+ },
+ {
+  "set": "golden_add",
+  "q": "캐릭터 배경을 정할 수 있어?",
+  "want": [
+   "Choose a Background",
+   "Character Backgrounds"
+  ],
+  "type": "사용자"
+ },
+ {
+  "set": "golden_add",
+  "q": "레벨을 올리려면 어떻게 해야 해?",
+  "want": [
+   "Level Advancement",
+   "Gaining a Level"
+  ],
+  "type": "사용자"
+ },
+ {
+  "set": "golden_add",
+  "q": "추가공격 하고싶은데 방법이 뭐야?",
+  "want": [
+   "Level 5: Extra Attack",
+   "Extra Attack"
+  ],
+  "type": "사용자"
+ },
+ {
+  "set": "golden_add",
+  "q": "웨폰 마스터리가 무슨 스킬이야?",
+  "want": [
+   "Level 1: Weapon Mastery",
+   "Mastery Properties"
+  ],
+  "type": "사용자"
+ },
+ {
+  "set": "golden_add",
+  "q": "바드 클래스의 장점이 있을까?",
+  "want": ["Bard Class Features"],
+  "type": "사용자"
+ },
+ {
+  "set": "golden_add",
+  "q": "레인저 11레벨엔 무슨 스킬 배울 수 있어?",
+  "want": [
+   "Level 11: Superior Hunter’s Prey",
+   "Ranger Class Features"
+  ],
+  "type": "사용자"
+ },
+ {
+  "set": "golden_add",
+  "q": "마법사 계열의 클래스는 뭐가 있어?",
+  "want": null,
+  "type": "사용자-거절"
+ },
+ {
+  "set": "golden_add",
+  "q": "오크 종족의 대표적인 특징이 뭐야?",
+  "want": "Orc",
+  "type": "사용자"
+ },
+ {
+  "set": "golden_add",
+  "q": "필기도구는 어떻게 얻을 수 있어?",
+  "want": [
+   "Ink Pen (2 CP)",
+   "Ink (10 GP)",
+   "Calligrapher’s Supplies (10 GP)"
+  ],
+  "type": "사용자"
+ },
+ {
+  "set": "golden_add",
+  "q": "동물과 소통하는 마법이 있어?",
+  "want": "Speak with Animals",
+  "type": "사용자"
+ },
+ {
+  "set": "golden_add",
+  "q": "순간이동하는 방법이 뭐가 있어?",
+  "want": [
+   "Teleportation",
+   "Misty Step",
+   "Teleport",
+   "Dimension Door"
+  ],
+  "type": "사용자"
+ },
+ {
+  "set": "golden_add",
+  "q": "무슨 반지가 전투에서 가장 좋아?",
+  "want": null,
+  "type": "사용자-거절"
+ },
+ {
+  "set": "golden_add",
+  "q": "다음 세션은 언제 해?",
+  "want": null,
+  "type": "거절"
+ },
+ {
+  "set": "golden_add",
+  "q": "가장 센 클래스 하나만 골라 줘",
+  "want": null,
+  "type": "거절"
+ },
+ {
+  "set": "golden_add",
+  "q": "발더스 게이트 3에서는 이 규칙이 어떻게 달라?",
+  "want": null,
+  "type": "거절"
+ },
+ {
+  "set": "golden_add",
+  "q": "패스파인더 2판 규칙으로는 어떻게 돼?",
+  "want": null,
+  "type": "거절"
+ },
+ {
+  "set": "golden_add",
+  "q": "주사위 세트는 어디서 사는 게 좋아?",
+  "want": null,
+  "type": "거절"
+ },
+ {
+  "set": "golden_add",
+  "q": "우리 GM이 정한 하우스룰 알려 줘",
+  "want": null,
+  "type": "거절"
+ },
+ {
+  "set": "golden_add",
+  "q": "초보한테 추천하는 파티 조합은?",
+  "want": null,
+  "type": "거절"
+ },
+ {
+  "set": "golden_add",
+  "q": "D&D는 몇 년에 처음 나왔어?",
+  "want": null,
+  "type": "거절"
+ },
+ {
+  "set": "golden_add",
+  "q": "오늘 저녁 메뉴 추천해 줘",
+  "want": null,
+  "type": "거절"
+ },
+ {
+  "set": "golden_add",
+  "q": "4판에서 치유 서지는 어떻게 써?",
+  "want": null,
+  "type": "거절"
+ },
+ {
+  "set": "golden_add",
+  "q": "콩 주머니에서 과일나무가 나오면 그 과일은 얼마 동안 효과가 있어?",
+  "want": "Bag of Beans",
+  "type": "경계"
+ },
+ {
+  "set": "golden_add",
+  "q": "인스턴트 포트리스 탑의 문은 어떻게 열어?",
+  "want": "Instant Fortress",
+  "type": "경계"
+ },
+ {
+  "set": "golden_add",
+  "q": "언데드 생성으로 만든 언데드를 계속 부리려면 어떻게 해야 해?",
+  "want": "Create Undead",
+  "type": "경계"
+ },
+ {
+  "set": "golden_add",
+  "q": "락 노움은 태엽 장치를 어떻게 만들어?",
+  "want": "Gnome",
+  "type": "경계"
+ },
+ {
+  "set": "golden_add",
+  "q": "야생 변신 중에 주문을 쓸 수 있어?",
+  "want": ["Level 2: Wild Shape", "Level 18: Beast Spells"],
+  "type": "경계"
+ },
+ {
+  "set": "golden_add",
+  "q": "힘의 지팡이를 부러뜨리면 어떻게 돼?",
+  "want": "Staff of Power",
+  "type": "경계"
+ },
+ {
+  "set": "golden_add",
+  "q": "휴대용 구멍 안에서는 얼마나 숨 쉴 수 있어?",
+  "want": "Portable Hole",
+  "type": "경계"
+ },
+ {
+  "set": "golden_add",
+  "q": "신비한 카드 덱에서 발톱 카드를 뽑으면?",
+  "want": "Mysterious Deck",
+  "type": "경계"
+ },
+ {
+  "set": "golden_add",
+  "q": "기억 수정 주문이 끝나기 전에 설명을 다 못 하면 어떻게 돼?",
+  "want": "Modify Memory",
+  "type": "경계"
+ },
+ {
+  "set": "golden_add",
+  "q": "감금 주문으로 대상을 보석 안에 가둘 수 있어?",
+  "want": "Imprisonment",
+  "type": "경계"
+ },
+ {
+  "set": "golden_add",
+  "q": "마법 물품을 만들 재료를 못 구하면 얼마나 기다려야 해?",
+  "want": "Time and Cost",
+  "type": "경계"
+ },
+ {
+  "set": "golden_add",
+  "q": "금화 1개는 은화 몇 개야?",
+  "want": "Coins",
+  "type": "표"
+ },
+ {
+  "set": "golden_add",
+  "q": "빠르게 이동하면 하루에 얼마나 갈 수 있어?",
+  "want": "Travel Pace",
+  "type": "표"
+ },
+ {
+  "set": "golden_add",
+  "q": "하루 생활비를 넉넉하게 쓰면 얼마나 들어?",
+  "want": [
+   "Lifestyle Expenses",
+   "Comfortable (2 GP per Day)"
+  ],
+  "type": "표"
+ },
+ {
+  "set": "golden_add",
+  "q": "멀리뛰기는 몇 피트까지 뛸 수 있어?",
+  "want": "Long Jump",
+  "type": "표"
+ },
+ {
+  "set": "golden_add",
+  "q": "희귀 등급 마법 물품은 가격이 얼마 정도야?",
+  "want": "Magic Item Values by Rarity",
+  "type": "표"
+ },
+ {
+  "set": "golden_add",
+  "q": "파이터 3레벨이랑 로그 2레벨이면 숙련 보너스가 몇이야?",
+  "want": "Proficiency Bonus",
+  "type": "표"
+ },
+ {
+  "set": "golden_add",
+  "q": "로그 5레벨이면 암습 피해가 몇 개 주사위야?",
+  "want": [
+   "Level 1: Sneak Attack",
+   "Level 3: Steady Aim"
+  ],
+  "type": "표"
+ },
+ {
+  "set": "golden_add",
+  "q": "중간 크기 물건의 체력은 얼마나 돼?",
+  "want": "Breaking Objects",
+  "type": "표"
+ },
+ {
+  "set": "golden_add",
+  "q": "횃불 하나는 몇 시간 타?",
+  "want": "Torch (1 CP)",
+  "type": "표"
+ },
+ {
+  "set": "golden_add",
+  "q": "치유 물약을 마시면 체력이 얼마나 회복돼?",
+  "want": [
+   "Potion of Healing (50 GP)",
+   "Potions of Healing"
+  ],
+  "type": "표"
+ },
+ {
+  "set": "golden_add",
+  "q": "망원경은 얼마야?",
+  "want": "Spyglass (1,000 GP)",
+  "type": "표"
+ },
+ {
+  "set": "golden_add",
+  "q": "투명해지는 주문이 있어?",
+  "want": [
+   "Invisibility",
+   "Greater Invisibility"
+  ],
+  "type": "주문"
+ },
+ {
+  "set": "golden_add",
+  "q": "파이어볼 범위는 얼마나 돼?",
+  "want": "Fireball",
+  "type": "주문"
+ },
+ {
+  "set": "golden_add",
+  "q": "죽은 동료를 되살리는 주문은 뭐가 있어?",
+  "want": [
+   "Revivify",
+   "Raise Dead",
+   "Resurrection",
+   "True Resurrection"
+  ],
+  "type": "주문"
+ },
+ {
+  "set": "golden_add",
+  "q": "독에 걸린 걸 마법으로 치료할 수 있어?",
+  "want": [
+   "Lesser Restoration",
+   "Protection from Poison"
+  ],
+  "type": "주문"
+ },
+ {
+  "set": "golden_add",
+  "q": "물속에서 숨 쉬게 해 주는 마법 있어?",
+  "want": "Water Breathing",
+  "type": "주문"
+ },
+ {
+  "set": "golden_add",
+  "q": "하늘을 날게 해 주는 주문은?",
+  "want": "Fly",
+  "type": "주문"
+ },
+ {
+  "set": "golden_add",
+  "q": "잠긴 문을 마법으로 열 수 있어?",
+  "want": "Knock",
+  "type": "주문"
+ },
+ {
+  "set": "golden_add",
+  "q": "이미 걸린 마법을 없애려면?",
+  "want": "Dispel Magic",
+  "type": "주문"
+ },
+ {
+  "set": "golden_add",
+  "q": "주문 슬롯은 어떻게 회복해?",
+  "want": "Spell Slots",
+  "type": "주문"
+ },
+ {
+  "set": "golden_add",
+  "q": "의식으로 주문을 쓰면 뭐가 달라?",
+  "want": "Ritual",
+  "type": "주문"
+ },
+ {
+  "set": "golden_add",
+  "q": "높은 레벨 슬롯으로 주문을 쓰면 더 세져?",
+  "want": "Using a Higher-Level Spell Slot",
+  "type": "주문"
+ },
+ {
+  "set": "golden_add",
+  "q": "바바리안 분노는 몇 번 쓸 수 있어?",
+  "want": "Level 1: Rage",
+  "type": "클래스"
+ },
+ {
+  "set": "golden_add",
+  "q": "팔라딘은 강타를 어떻게 써?",
+  "want": [
+   "Level 2: Paladin’s Smite",
+   "Divine Smite"
+  ],
+  "type": "클래스"
+ },
+ {
+  "set": "golden_add",
+  "q": "몽크 기력 포인트는 뭐에 써?",
+  "want": "Level 2: Monk’s Focus",
+  "type": "클래스"
+ },
+ {
+  "set": "golden_add",
+  "q": "드루이드는 동물로 변신할 수 있어?",
+  "want": "Level 2: Wild Shape",
+  "type": "클래스"
+ },
+ {
+  "set": "golden_add",
+  "q": "소서러 메타매직 종류 알려 줘",
+  "want": [
+   "Level 2: Metamagic",
+   "Metamagic Options"
+  ],
+  "type": "클래스"
+ },
+ {
+  "set": "golden_add",
+  "q": "워록은 어떤 기원을 고를 수 있어?",
+  "want": [
+   "Level 1: Eldritch Invocations",
+   "Eldritch Invocation Options"
+  ],
+  "type": "클래스"
+ },
+ {
+  "set": "golden_add",
+  "q": "클레릭은 언데드한테 어떤 능력을 써?",
+  "want": [
+   "Level 5: Sear Undead",
+   "Level 2: Channel Divinity"
+  ],
+  "type": "클래스"
+ },
+ {
+  "set": "golden_add",
+  "q": "두 클래스를 섞어서 키울 수 있어?",
+  "want": "Multiclassing",
+  "type": "클래스"
+ },
+ {
+  "set": "golden_add",
+  "q": "엘프는 어떤 특징이 있어?",
+  "want": "Elf",
+  "type": "클래스"
+ },
+ {
+  "set": "golden_add",
+  "q": "드워프는 독에 강해?",
+  "want": "Dwarf",
+  "type": "클래스"
+ },
+ {
+  "set": "golden_add",
+  "q": "경계 재주를 찍으면 뭐가 좋아져?",
+  "want": "Alert",
+  "type": "클래스"
+ },
+ {
+  "set": "golden_add",
+  "q": "붙잡기 잘하는 재주가 있어?",
+  "want": "Grappler",
+  "type": "클래스"
+ },
+ {
+  "set": "golden_add",
+  "q": "숙련 없는 갑옷을 입으면 어떻게 돼?",
+  "want": [
+   "Armor Training",
+   "Light, Medium, or Heavy Armor"
+  ],
+  "type": "장비"
+ },
+ {
+  "set": "golden_add",
+  "q": "방패를 들면 방어도가 얼마나 올라?",
+  "want": "Shield",
+  "type": "장비"
+ },
+ {
+  "set": "golden_add",
+  "q": "넘어뜨리기 마스터리는 어떻게 써?",
+  "want": "Topple",
+  "type": "장비"
+ },
+ {
+  "set": "golden_add",
+  "q": "도둑 도구로 뭘 할 수 있어?",
+  "want": "Thieves’ Tools (25 GP)",
+  "type": "장비"
+ },
+ {
+  "set": "golden_add",
+  "q": "짐을 많이 넣을 수 있는 가방이 있어?",
+  "want": [
+   "Bag of Holding",
+   "Handy Haversack"
+  ],
+  "type": "장비"
+ },
+ {
+  "set": "golden_add",
+  "q": "마법 물품은 몇 개까지 조율할 수 있어?",
+  "want": [
+   "No More Than Three Items",
+   "Attunement"
+  ],
+  "type": "장비"
+ },
+ {
+  "set": "golden_add",
+  "q": "저주받은 마법 물품은 어떻게 알아봐?",
+  "want": [
+   "Cursed Items",
+   "Cursed Magic Items"
+  ],
+  "type": "장비"
+ },
+ {
+  "set": "golden_add",
+  "q": "날아다니게 해 주는 마법 물품 있어?",
+  "want": [
+   "Broom of Flying",
+   "Carpet of Flying",
+   "Winged Boots",
+   "Wings of Flying",
+   "Potion of Flying"
+  ],
+  "type": "장비"
+ },
+ {
+  "set": "golden_add",
+  "q": "엄청 추운 곳에서는 어떻게 돼?",
+  "want": "Extreme Cold",
+  "type": "환경"
+ },
+ {
+  "set": "golden_add",
+  "q": "숨겨진 구덩이 함정에 빠지면?",
+  "want": [
+   "Hidden Pit",
+   "Spiked Pit"
+  ],
+  "type": "환경"
+ },
+ {
+  "set": "golden_add",
+  "q": "독은 어디서 살 수 있어?",
+  "want": [
+   "Purchasing Poison",
+   "Poison, Basic (100 GP)"
+  ],
+  "type": "환경"
+ },
+ {
+  "set": "golden_add",
+  "q": "하수구 역병에 걸리면 어떻게 돼?",
+  "want": "Sewer Plague",
+  "type": "환경"
+ },
+ {
+  "set": "golden_add",
+  "q": "고블린 전사는 체력이 얼마야?",
+  "want": "Goblin Warrior",
+  "type": "몬스터"
+ },
+ {
+  "set": "golden_add",
+  "q": "성체 레드 드래곤 브레스 피해는?",
+  "want": "Adult Red Dragon",
+  "type": "몬스터"
+ },
+ {
+  "set": "golden_add",
+  "q": "트롤은 어떻게 재생을 막아?",
+  "want": "Troll",
+  "type": "몬스터"
+ },
+ {
+  "set": "golden_add",
+  "q": "늑대가 무리로 싸우면 얼마나 강해져?",
+  "want": "Wolf",
+  "type": "몬스터"
+ }
+]
