@@ -1,0 +1,65 @@
+{
+  "_source": "함정 5종. 수치 = 원본 카드 [원본] (SRD p.199-201과 대조해 일치, analysis/05_시스템설계/05-7 1장). 엔진이 쓰는 필드: save, damage, damage_count, damage_type, on_save_success, fail_condition, max_triggers, 문장(trigger_text 등). detect·neutralize는 장면 데이터 작성용 참고 (엔진은 장면 선택지의 판정으로 처리).",
+  "traps": {
+    "poisoned_needle": {
+      "name": "독침", "room": "halvik_study", "card": "scn-g-chest-trap", "severity": "nuisance",
+      "trigger": "열쇠 없이 서랍을 열거나 해제에 실패함 [원본 scn-g-chest-trap, SRD p.200]",
+      "detect": [{"ability": "wis", "skill": "perception", "dc": 15}],
+      "neutralize": [{"type": "check", "ability": "dex", "skill": "sleight_of_hand", "dc": 15, "on_fail": "trigger"}, {"type": "key"}],
+      "save": {"ability": "con", "dc": 11, "avoids": "poisoned"},
+      "damage": "1d10", "damage_type": "poison", "on_save_success": "half",
+      "fail_condition": {"name": "poisoned", "minutes": 60},
+      "max_triggers": 1,
+      "trigger_text": "바늘이 튀어나와 손가락을 찌른다! 독침 함정이다.",
+      "fail_condition_text": "{name}가 중독되었다 (1시간 동안 능력 판정에 불리)."
+    },
+    "collapsing_roof": {
+      "name": "무너지는 천장", "room": "cloister_mid", "card": "scn-g-roof-trap", "severity": "deadly",
+      "trigger": "바닥의 철사를 건드림 [원본, SRD p.199]",
+      "detect": [{"ability": "wis", "skill": "perception", "dc": 11}],
+      "neutralize": [{"type": "auto", "note": "발견하면 판정 없이 철사를 자르거나 피함"}],
+      "save": {"ability": "dex", "dc": 13},
+      "damage": "2d10", "damage_type": "bludgeoning", "on_save_success": "half",
+      "max_triggers": 1,
+      "noise": true,
+      "trigger_text": "발밑에서 철사가 끊어지는 느낌과 함께 천장이 무너져 내린다!",
+      "after_text": "잔해가 통로를 덮어 걷기 어려워졌다. 큰 소리가 물속으로 퍼져 나간다."
+    },
+    "hidden_pit": {
+      "name": "숨겨진 구덩이", "room": "infirmary", "card": "scn-g-pit-trap", "severity": "nuisance",
+      "trigger": "뚜껑 위를 밟음 [원본, SRD p.200]",
+      "detect": [{"ability": "int", "skill": "investigation", "dc": 15}],
+      "neutralize": [{"type": "item", "item": "iron_spikes"}],
+      "save": null,
+      "damage": "1d6", "damage_type": "bludgeoning",
+      "fail_condition": {"name": "in_pit", "minutes": null},
+      "escape_items": ["rope", "climbing_gear"],
+      "max_triggers": null,
+      "trigger_text": "바닥이 꺼진다! 10피트 아래 구덩이로 떨어졌다.",
+      "fail_condition_text": "{name}가 구덩이에 빠졌다. 밧줄이나 등반 장비 없이는 올라오기 어렵다."
+    },
+    "falling_net": {
+      "name": "떨어지는 그물", "room": "scriptorium_hall", "card": "scn-g-net-trap", "severity": "nuisance",
+      "trigger": "철사를 건드림 [원본, SRD p.199]",
+      "detect": [{"ability": "wis", "skill": "perception", "dc": 11}],
+      "neutralize": [{"type": "auto", "note": "발견하면 판정 없이 피함"}],
+      "save": {"ability": "dex", "dc": 10},
+      "fail_condition": {"name": "restrained", "minutes": null},
+      "escape": {"ability": "str", "skill": "athletics", "dc": 10},
+      "max_triggers": 1,
+      "trigger_text": "머리 위에서 무거운 그물이 떨어진다!",
+      "fail_condition_text": "{name}가 그물에 갇혔다 (Restrained)."
+    },
+    "poisoned_darts": {
+      "name": "독침 다트", "room": "sluice_works", "card": "scn-g-darts-trap", "severity": "deadly",
+      "trigger": "압력판을 밟음 [원본, SRD p.200]",
+      "detect": [{"ability": "wis", "skill": "perception", "dc": 15, "reveals": "holes"}, {"ability": "wis", "skill": "perception", "dc": 15, "reveals": "plate"}],
+      "neutralize": [{"type": "item", "item": "iron_spikes"}, {"type": "plug", "note": "밀랍·천으로 구멍을 모두 막음"},
+                     {"type": "check", "actor": "cls:rogue", "ability": "dex", "tool": "thieves_tools", "dc": 15, "on_fail": "trigger", "card": "scn-h-rogue-disarm"}],
+      "save": {"ability": "dex", "dc": 13},
+      "damage_count": "1d3", "damage": "1d6", "damage_type": "poison", "on_save_success": "none",
+      "max_triggers": 3,
+      "trigger_text": "벽의 구멍에서 다트가 날아온다!"
+    }
+  }
+}
