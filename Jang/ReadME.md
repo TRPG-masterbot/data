@@ -1,6 +1,15 @@
-<h3>Input_Code_0.1_ver.ipynb    -- (2026_11_13 업로드)</h3>
+<h3>Input_Code_0.1_ver.ipynb    -- (2026_11_17 업로드)</h3>
 
 <ul>
+  <li>
+    <small>불필요한 테스트 코드 정리</small>
+  </li>
+  <li>
+
+  </li>
+  <li>
+    <small>---- (2026_11_13 업로드) ----</small>
+  </li>
   <li>
     <small>RULE / SCENARIO RAG .py 파일로 import</small>
   </li>
