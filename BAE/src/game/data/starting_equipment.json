@@ -1,0 +1,272 @@
+{
+  "schema_version": 1,
+  "ruleset": "SRD 5.2",
+  "source": {
+    "url": "https://media.dndbeyond.com/compendium-images/srd/5.2/SRD_CC_v5.2.pdf",
+    "printed_pages": [
+      36,
+      47,
+      61,
+      77,
+      83,
+      84,
+      96,
+      97,
+      99
+    ]
+  },
+  "setup_note": "사전 제작 1레벨 캐릭터다. 클래스·배경의 장비 A를 기준으로, 장착 장비와 4~5종류의 핵심 휴대품을 골라 탐사를 시작한다. 전체 장비 A 목록은 규칙 기준 자료로 보존하며, 선택하지 않은 물품은 현재 휴대품에 넣지 않는다. 시작 금액은 기존 장비 A의 금액을 유지한다.",
+  "quantity_note": "식량은 하루치, 화살·양초·횃불·양피지는 낱개, 밧줄·마름쇠·쇠구슬·공구는 구매 단위 한 묶음으로 셉니다. 같은 물품을 클래스와 배경에서 받으면 수량을 합칩니다.",
+  "limitations": [
+    "전체 캐릭터 생성기가 아니라 고정된 클래스·배경·종족 조합을 사용합니다.",
+    "출신 재주와 일부 종족 특성은 아직 전부 구현하지 않았습니다.",
+    "화면의 주문 목록과 전투 무기는 엔진에서 구현한 일부입니다. 주문책을 받았다고 미구현 주문을 실행할 수 있는 것은 아닙니다.",
+    "MP나 누적 행동력 수치를 추가하지 않습니다. 주문 슬롯·직업 사용 횟수·현재 차례의 행동/보너스 행동을 구분합니다."
+  ],
+  "characters": {
+    "bran": {
+      "packages": [
+        "fighter_A",
+        "soldier_A"
+      ],
+      "carry_selection": {
+        "rope": 1,
+        "torch": 2,
+        "rations": 2,
+        "healers_kit": 1
+      },
+      "equipped_selection": {
+        "chain_mail": 1,
+        "greatsword": 1,
+        "javelin": 8
+      },
+      "carry_note": "장비 A 기준 소유품 중 이번 탐사에 휴대할 핵심 물품만 골랐다. 장착 장비는 가방 목록과 별도로 표시하며, 미휴대 물품은 현재 탐사에서 사용할 수 없다. 물품을 팔거나 버려 추가 금액을 얻은 것으로 처리하지 않는다."
+    },
+    "harin": {
+      "packages": [
+        "rogue_A",
+        "criminal_A"
+      ],
+      "carry_selection": {
+        "rope": 1,
+        "thieves_tools": 1,
+        "hooded_lantern": 1,
+        "oil": 2,
+        "rations": 2
+      },
+      "equipped_selection": {
+        "leather": 1,
+        "shortsword": 1,
+        "shortbow": 1,
+        "dagger": 1,
+        "arrows": 20,
+        "quiver": 1
+      },
+      "carry_note": "장비 A 기준 소유품 중 이번 탐사에 휴대할 핵심 물품만 골랐다. 장착 장비는 가방 목록과 별도로 표시하며, 미휴대 물품은 현재 탐사에서 사용할 수 없다. 물품을 팔거나 버려 추가 금액을 얻은 것으로 처리하지 않는다."
+    },
+    "seo": {
+      "packages": [
+        "wizard_A",
+        "sage_A"
+      ],
+      "carry_selection": {
+        "spellbook": 1,
+        "lamp": 1,
+        "oil": 2,
+        "parchment": 2,
+        "ink_pen": 1
+      },
+      "equipped_selection": {
+        "arcane_focus_quarterstaff": 1,
+        "dagger": 1,
+        "robe": 1
+      },
+      "carry_note": "장비 A 기준 소유품 중 이번 탐사에 휴대할 핵심 물품만 골랐다. 장착 장비는 가방 목록과 별도로 표시하며, 미휴대 물품은 현재 탐사에서 사용할 수 없다. 물품을 팔거나 버려 추가 금액을 얻은 것으로 처리하지 않는다."
+    },
+    "maren": {
+      "packages": [
+        "cleric_A",
+        "acolyte_A"
+      ],
+      "carry_selection": {
+        "holy_symbol": 1,
+        "holy_water": 1,
+        "lamp": 1,
+        "rations": 2
+      },
+      "equipped_selection": {
+        "chain_shirt": 1,
+        "shield": 1,
+        "mace": 1,
+        "robe": 1
+      },
+      "carry_note": "장비 A 기준 소유품 중 이번 탐사에 휴대할 핵심 물품만 골랐다. 장착 장비는 가방 목록과 별도로 표시하며, 미휴대 물품은 현재 탐사에서 사용할 수 없다. 물품을 팔거나 버려 추가 금액을 얻은 것으로 처리하지 않는다."
+    }
+  },
+  "packages": {
+    "fighter_A": {
+      "gold_cp": 400,
+      "items": {
+        "chain_mail": 1,
+        "greatsword": 1,
+        "flail": 1,
+        "javelin": 8
+      },
+      "packs": [
+        "dungeoneers_pack"
+      ],
+      "source_page": 47
+    },
+    "soldier_A": {
+      "gold_cp": 1400,
+      "items": {
+        "spear": 1,
+        "shortbow": 1,
+        "arrows": 20,
+        "dice_set": 1,
+        "healers_kit": 1,
+        "quiver": 1,
+        "travelers_clothes": 1
+      },
+      "source_page": 83,
+      "choice": "사전 선택: 게임 도구는 다이스 한 벌을 사용합니다."
+    },
+    "rogue_A": {
+      "gold_cp": 800,
+      "items": {
+        "leather": 1,
+        "dagger": 2,
+        "shortsword": 1,
+        "shortbow": 1,
+        "arrows": 20,
+        "quiver": 1,
+        "thieves_tools": 1
+      },
+      "packs": [
+        "burglars_pack"
+      ],
+      "source_page": 61
+    },
+    "criminal_A": {
+      "gold_cp": 1600,
+      "items": {
+        "dagger": 2,
+        "thieves_tools": 1,
+        "crowbar": 1,
+        "pouch": 2,
+        "travelers_clothes": 1
+      },
+      "source_page": 83
+    },
+    "wizard_A": {
+      "gold_cp": 500,
+      "items": {
+        "dagger": 2,
+        "arcane_focus_quarterstaff": 1,
+        "robe": 1,
+        "spellbook": 1
+      },
+      "packs": [
+        "scholars_pack"
+      ],
+      "source_page": 77
+    },
+    "sage_A": {
+      "gold_cp": 800,
+      "items": {
+        "quarterstaff": 1,
+        "calligraphers_supplies": 1,
+        "book_history": 1,
+        "parchment": 8,
+        "robe": 1
+      },
+      "source_page": 83
+    },
+    "cleric_A": {
+      "gold_cp": 700,
+      "items": {
+        "chain_shirt": 1,
+        "shield": 1,
+        "mace": 1,
+        "holy_symbol": 1
+      },
+      "packs": [
+        "priests_pack"
+      ],
+      "source_page": 36
+    },
+    "acolyte_A": {
+      "gold_cp": 800,
+      "items": {
+        "calligraphers_supplies": 1,
+        "book_prayers": 1,
+        "holy_symbol": 1,
+        "parchment": 10,
+        "robe": 1
+      },
+      "source_page": 83
+    }
+  },
+  "packs": {
+    "dungeoneers_pack": {
+      "name": "던전 탐험 꾸러미",
+      "source_page": 97,
+      "items": {
+        "backpack": 1,
+        "caltrops": 1,
+        "crowbar": 1,
+        "oil": 2,
+        "rations": 10,
+        "rope": 1,
+        "tinderbox": 1,
+        "torch": 10,
+        "waterskin": 1
+      }
+    },
+    "burglars_pack": {
+      "name": "도둑 꾸러미",
+      "source_page": 96,
+      "items": {
+        "backpack": 1,
+        "ball_bearings": 1,
+        "bell": 1,
+        "candle": 10,
+        "crowbar": 1,
+        "hooded_lantern": 1,
+        "oil": 7,
+        "rations": 5,
+        "rope": 1,
+        "tinderbox": 1,
+        "waterskin": 1
+      }
+    },
+    "scholars_pack": {
+      "name": "학자 꾸러미",
+      "source_page": 99,
+      "items": {
+        "backpack": 1,
+        "book": 1,
+        "ink": 1,
+        "ink_pen": 1,
+        "lamp": 1,
+        "oil": 10,
+        "parchment": 10,
+        "tinderbox": 1
+      }
+    },
+    "priests_pack": {
+      "name": "사제 꾸러미",
+      "source_page": 99,
+      "items": {
+        "backpack": 1,
+        "blanket": 1,
+        "holy_water": 1,
+        "lamp": 1,
+        "rations": 7,
+        "robe": 1,
+        "tinderbox": 1
+      }
+    }
+  },
+  "carry_selection_rule": "carry_selection과 equipped_selection은 정규 장비 A 소유품의 부분집합이다. 실제 가방에는 carry_selection만 지급하며, 장착 장비와 미휴대 기준 목록은 setup 기록으로 구분한다."
+}

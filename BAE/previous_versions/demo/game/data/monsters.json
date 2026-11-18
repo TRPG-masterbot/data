@@ -1,0 +1,92 @@
+{
+  "_source": "SRD 5.2 몬스터 능력치 블록 (쪽 번호는 각 항목 page). HP는 고정값 사용 [SRD p.253: 고정값 또는 주사위 중 하나]. 시나리오 카드의 HP·CR과 모두 일치 확인 (W6). saves = 능력치 블록의 SAVE 열.",
+  "monsters": {
+    "swarm_of_rats": {
+      "name": "쥐 떼", "page": 359, "type": "beast", "cr": "1/4", "xp": 50,
+      "ac": 10, "hp": 14, "init": 0,
+      "saves": {"str": -1, "dex": 2, "con": -1, "int": -4, "wis": 0, "cha": -4},
+      "resist": ["bludgeoning", "piercing", "slashing"], "vulnerable": [], "immune": [],
+      "condition_immune": ["charmed", "frightened", "grappled", "paralyzed", "petrified", "prone", "restrained", "stunned"],
+      "traits": ["swarm_no_heal"],
+      "multiattack": 1,
+      "attacks": [{"name": "물어뜯기", "to_hit": 2, "damage": "2d4", "type": "piercing", "bloodied_damage": "1d4"}]
+    },
+    "shrieker_fungus": {
+      "name": "비명 버섯", "page": 283, "type": "plant", "cr": "0", "xp": 0,
+      "ac": 5, "hp": 13, "init": -5,
+      "saves": {"str": -5, "dex": -5, "con": 0, "int": -5, "wis": -4, "cha": -5},
+      "resist": [], "vulnerable": [], "immune": [],
+      "condition_immune": ["blinded", "charmed", "deafened", "frightened"],
+      "traits": ["shriek"],
+      "multiattack": 0, "attacks": []
+    },
+    "giant_crab": {
+      "name": "거대 게", "page": 347, "type": "beast", "cr": "1/8", "xp": 25,
+      "ac": 15, "hp": 13, "init": 1,
+      "saves": {"str": 1, "dex": 1, "con": 0, "int": -5, "wis": -1, "cha": -4},
+      "resist": [], "vulnerable": [], "immune": [], "condition_immune": [],
+      "traits": [],
+      "multiattack": 1,
+      "attacks": [{"name": "집게", "to_hit": 3, "damage": "1d6+1", "type": "bludgeoning", "grapple": {"dc": 11}}]
+    },
+    "gray_ooze": {
+      "name": "회색 점액", "page": 290, "type": "ooze", "cr": "1/2", "xp": 100,
+      "ac": 9, "hp": 22, "init": -2,
+      "saves": {"str": 1, "dex": -2, "con": 3, "int": -5, "wis": -2, "cha": -4},
+      "resist": ["acid", "cold", "fire"], "vulnerable": [], "immune": [],
+      "condition_immune": ["blinded", "charmed", "deafened", "exhaustion", "frightened", "grappled", "prone", "restrained"],
+      "traits": ["corrosive_form"],
+      "multiattack": 1,
+      "attacks": [{"name": "위족", "to_hit": 3, "damage": "2d8+1", "type": "acid", "corrode_armor": true}]
+    },
+    "zombie": {
+      "name": "좀비", "page": 340, "type": "undead", "cr": "1/4", "xp": 50,
+      "ac": 8, "hp": 15, "init": -2,
+      "saves": {"str": 1, "dex": -2, "con": 3, "int": -4, "wis": 0, "cha": -3},
+      "resist": [], "vulnerable": [], "immune": ["poison"],
+      "condition_immune": ["exhaustion", "poisoned"],
+      "traits": ["undead_fortitude"],
+      "multiattack": 1,
+      "attacks": [{"name": "후려치기", "to_hit": 3, "damage": "1d8+1", "type": "bludgeoning"}]
+    },
+    "animated_armor": {
+      "name": "움직이는 갑옷", "page": 256, "type": "construct", "cr": "1", "xp": 200,
+      "ac": 18, "hp": 33, "init": 2,
+      "saves": {"str": 2, "dex": 0, "con": 1, "int": -5, "wis": -4, "cha": -5},
+      "resist": [], "vulnerable": [], "immune": ["poison", "psychic"],
+      "condition_immune": ["charmed", "deafened", "exhaustion", "frightened", "paralyzed", "petrified", "poisoned"],
+      "traits": [],
+      "multiattack": 2,
+      "attacks": [{"name": "강타", "to_hit": 4, "damage": "1d6+2", "type": "bludgeoning"}]
+    },
+    "shadow": {
+      "name": "그림자", "page": 319, "type": "undead", "cr": "1/2", "xp": 100,
+      "ac": 12, "hp": 27, "init": 2, "stealth": 6,
+      "saves": {"str": -2, "dex": 2, "con": 1, "int": -2, "wis": 0, "cha": -1},
+      "resist": ["acid", "cold", "fire", "lightning", "thunder"], "vulnerable": ["radiant"], "immune": ["necrotic", "poison"],
+      "condition_immune": ["exhaustion", "frightened", "grappled", "paralyzed", "petrified", "poisoned", "prone", "restrained", "unconscious"],
+      "traits": ["shadow_stealth"],
+      "multiattack": 1,
+      "attacks": [{"name": "흡수의 손길", "to_hit": 4, "damage": "1d6+2", "type": "necrotic", "str_drain": "1d4"}]
+    },
+    "giant_octopus": {
+      "name": "거대 문어", "page": 349, "type": "beast", "cr": "1", "xp": 200,
+      "ac": 11, "hp": 45, "init": 1,
+      "saves": {"str": 3, "dex": 1, "con": 1, "int": -3, "wis": 0, "cha": -3},
+      "resist": [], "vulnerable": [], "immune": [], "condition_immune": [],
+      "traits": ["ink_cloud"],
+      "multiattack": 1,
+      "attacks": [{"name": "촉수", "to_hit": 5, "damage": "2d6+3", "type": "bludgeoning", "grapple": {"dc": 13, "restrained": true}}]
+    },
+    "specter": {
+      "name": "망령", "page": 324, "type": "undead", "cr": "1", "xp": 200,
+      "ac": 12, "hp": 22, "init": 2,
+      "saves": {"str": -5, "dex": 2, "con": 0, "int": 0, "wis": 0, "cha": 0},
+      "resist": ["acid", "bludgeoning", "cold", "fire", "lightning", "piercing", "slashing", "thunder"], "vulnerable": [], "immune": ["necrotic", "poison"],
+      "condition_immune": ["charmed", "exhaustion", "grappled", "paralyzed", "petrified", "poisoned", "prone", "restrained", "unconscious"],
+      "traits": [],
+      "multiattack": 1,
+      "attacks": [{"name": "생명 흡수", "to_hit": 4, "damage": "2d6", "type": "necrotic", "max_hp_drain": true}]
+    }
+  }
+}
