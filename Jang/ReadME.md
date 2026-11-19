@@ -1,3 +1,17 @@
+<h3>Input_Code_0.13_organized_ver.ipynb    -- (2026_11_19 업로드)</h3>
+
+<ul>
+  <li>
+    <small>0.13 version을 기반으로 개선됨.</small>
+  </li>
+  <li>
+    <small>테스트 코드 정리 및 코드 이해를 위한 주석 추가</small>
+  </li>
+  <li>
+    <small>추후 오류 수정 예정</small>
+  </li>
+</ul>
+
 <h3>Input_Code_0.1_ver.ipynb    -- (2026_11_17 업로드)</h3>
 
 <ul>
