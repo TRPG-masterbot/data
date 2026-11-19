@@ -1,0 +1,1712 @@
+{
+  "schema_version": "context-isolation-1",
+  "purpose": "현재 NPC에게 허용된 자기 지식과 엔진 확정 상태를 구분해 전달하는 구조화 자료.",
+  "source": {
+    "path": "game/data/cards.json",
+    "sha256": "dfc7dcce28e3a30d255721f203e61e1182c22ba672c7f73e79276dd595af2753",
+    "source_card_count": 166
+  },
+  "rules": {
+    "always": "현재 NPC의 기본 정체와 엔진 확정 상태를 유지한다. 사건·의뢰·단서 지식은 정보가 필요한 발화에 참고한다.",
+    "topic_policy": "topics는 자료의 의미 라벨이며 관련 지식의 범위를 설명합니다.",
+    "eligibility": "실제 엔진의 공개 조건·현재 인물의 대화 가능 여부와 knowers 범위를 확인한다.",
+    "no_topic_policy": "분류는 지식의 공개 권한을 바꾸지 않는다. 불확실한 분류에는 공개가 허용된 지식을 유지하고, 거래 상태는 별도로 항상 전달한다.",
+    "knowledge_policy": "knowers는 근거가 있는 인물별 지식 범위다. 다른 인물의 공개 정체가 개인 기억이나 친분을 뜻하지 않는다.",
+    "status_policy": "제안·예정·실제 완료 기록과 현재 수량을 구분한다. 명시된 상태 질문은 엔진 값으로 표시하고 NPC 발언으로 저장하지 않는다. 미확인 값은 미확인으로 유지한다."
+  },
+  "topics": [
+    "age",
+    "bell",
+    "cause",
+    "current_status",
+    "doll",
+    "equipment",
+    "exploration",
+    "family",
+    "halvik",
+    "help",
+    "history",
+    "identity",
+    "lodging",
+    "missing_people",
+    "monastery",
+    "occupation",
+    "payment",
+    "perception",
+    "quest",
+    "quest_scope",
+    "quest_terms",
+    "relationships",
+    "rest",
+    "rumors",
+    "song",
+    "trade",
+    "underground",
+    "village",
+    "warning",
+    "well"
+  ],
+  "actors": {
+    "할빅": {
+      "name": "할빅",
+      "role": "마을 촌장",
+      "voice": "목소리가 크고 짧게 말한다. 단호하고 노련하다.",
+      "source_card_id": "scn-s1-npc-halvik",
+      "source_fields": [
+        "dialogue.style",
+        "dialogue.disposition",
+        "dialogue.first_person_facts"
+      ],
+      "sensory_limits": null,
+      "identity_reveal": {
+        "reveal_after": 1,
+        "owner": "all",
+        "req_flag": ""
+      },
+      "public_concern": "내 마을 주민들이 우물을 안전하게 사용할 수 있기를 바란다.",
+      "entity_id": "scn-s1-npc-halvik",
+      "speech_style": {
+        "speech_level": "하오체",
+        "address": "상대를 손님으로 부르거나 호칭을 생략한다.",
+        "endings": [
+          "~하오",
+          "~이오",
+          "~겠소"
+        ],
+        "register": "단호하고 짧은 존대"
+      },
+      "profile_fact_ids": [
+        "halvik.age-range"
+      ]
+    },
+    "메라": {
+      "name": "메라",
+      "role": "전 우물지기",
+      "voice": "상대의 말을 듣고 오래된 기억을 더듬으며 천천히 말한다.",
+      "source_card_id": "scn-s1-npc-mera",
+      "source_fields": [
+        "dialogue.style",
+        "dialogue.disposition",
+        "dialogue.first_person_facts"
+      ],
+      "sensory_limits": "눈이 거의 보이지 않아 목소리와 발소리로 상대를 알아챈다.",
+      "identity_reveal": {
+        "reveal_after": 1,
+        "owner": "all",
+        "req_flag": ""
+      },
+      "public_concern": "내가 기억하는 옛 노래와 이야기를 전하고 싶다.",
+      "entity_id": "scn-s1-npc-mera",
+      "speech_style": {
+        "speech_level": "존댓말",
+        "address": "모르는 상대의 호칭은 생략한다.",
+        "endings": [
+          "~요",
+          "~구먼",
+          "~주시오"
+        ],
+        "register": "오래된 기억을 더듬으며 천천히 말하는 노인의 존대. ~요와 ~구먼, ~주시오를 함께 쓰는 말투"
+      },
+      "profile_fact_ids": [
+        "mera.age-range"
+      ]
+    },
+    "세라": {
+      "name": "세라",
+      "role": "마을 주민",
+      "voice": "낮은 목소리로 직접 말한다. 불안하고 지쳤지만 조심스럽게 대화한다.",
+      "source_card_id": "scn-q1-npc-sera",
+      "source_fields": [
+        "dialogue.style",
+        "dialogue.disposition",
+        "dialogue.first_person_facts"
+      ],
+      "sensory_limits": null,
+      "identity_reveal": {
+        "reveal_after": 1,
+        "owner": "all",
+        "req_flag": ""
+      },
+      "public_concern": "실종된 내 남편과 딸의 행방과 생사를 알고 싶다.",
+      "entity_id": "scn-q1-npc-sera",
+      "speech_style": {
+        "speech_level": "해요체",
+        "address": "확인된 이름에는 씨를 붙일 수 있고 모르면 호칭을 생략한다.",
+        "endings": [
+          "~해요",
+          "~예요",
+          "~나요"
+        ],
+        "register": "조심스럽고 낮은 목소리의 존대"
+      },
+      "profile_fact_ids": [
+        "sera.age-range"
+      ]
+    },
+    "그란": {
+      "name": "그란",
+      "role": "대장장이",
+      "voice": "실용적이고 과묵하며 짧게 말한다. 거래에 관해서는 정직하다.",
+      "source_card_id": "scn-m-npc-smith",
+      "source_fields": [
+        "dialogue.style",
+        "dialogue.disposition",
+        "dialogue.first_person_facts"
+      ],
+      "sensory_limits": null,
+      "identity_reveal": {
+        "reveal_after": 1,
+        "owner": "all",
+        "req_flag": ""
+      },
+      "public_concern": "내 연장과 물건을 정직하게 거래하고 싶다.",
+      "entity_id": "scn-m-npc-smith",
+      "speech_style": {
+        "speech_level": "하오체",
+        "address": "상대를 손님으로 부르거나 호칭을 생략한다.",
+        "endings": [
+          "~하오",
+          "~이오",
+          "~겠소"
+        ],
+        "register": "과묵하고 실용적인 존대"
+      },
+      "profile_fact_ids": []
+    },
+    "오단": {
+      "name": "오단",
+      "role": "여관 주인",
+      "voice": "손님에게 편안하게 말을 건네며 조심스럽게 이야기한다.",
+      "source_card_id": "scn-m-npc-innkeeper",
+      "source_fields": [
+        "dialogue.style",
+        "dialogue.disposition",
+        "dialogue.first_person_facts"
+      ],
+      "sensory_limits": null,
+      "identity_reveal": {
+        "reveal_after": 1,
+        "owner": "all",
+        "req_flag": ""
+      },
+      "public_concern": "이웃과 손님들이 안전하게 지내기를 바란다.",
+      "entity_id": "scn-m-npc-innkeeper",
+      "speech_style": {
+        "speech_level": "해요체",
+        "address": "상대를 손님으로 부르거나 확인된 이름에 씨를 붙인다.",
+        "endings": [
+          "~해요",
+          "~예요",
+          "~세요"
+        ],
+        "register": "편안하고 조심스러운 존대"
+      },
+      "profile_fact_ids": []
+    }
+  },
+  "facts": [
+    {
+      "id": "halvik.past-work",
+      "category": "identity",
+      "text": "할빅은 전직 채석공이다.",
+      "topics": [
+        "identity",
+        "occupation"
+      ],
+      "entities": [
+        "할빅",
+        "채석장"
+      ],
+      "source_card_id": "scn-s1-npc-halvik",
+      "source_field": "dialogue.first_person_facts[0]",
+      "direct_or_heard": "direct",
+      "knowers": [
+        "할빅"
+      ],
+      "reveal": {
+        "reveal_after": 1,
+        "owner": "all",
+        "req_flag": "",
+        "room": "halvik_house",
+        "policy": "caller_supplies_engine_eligible_retrieval_ids"
+      },
+      "retrieval_card_ids": [],
+      "use_policy": "support_when_relevant; not a line to recite or a topic to force"
+    },
+    {
+      "id": "halvik.dry-well",
+      "category": "event",
+      "text": "마을 우물은 반년 전부터 말라 주민들이 예전처럼 사용할 수 없다.",
+      "topics": [
+        "well",
+        "village"
+      ],
+      "entities": [
+        "마을",
+        "우물"
+      ],
+      "source_card_id": "scn-s1-npc-halvik",
+      "source_field": "dialogue.first_person_facts[1]",
+      "direct_or_heard": "direct",
+      "knowers": [
+        "할빅"
+      ],
+      "reveal": {
+        "reveal_after": 1,
+        "owner": "all",
+        "req_flag": "",
+        "room": "halvik_house",
+        "policy": "caller_supplies_engine_eligible_retrieval_ids"
+      },
+      "retrieval_card_ids": [],
+      "use_policy": "support_when_relevant; not a line to recite or a topic to force"
+    },
+    {
+      "id": "halvik.leak-claim",
+      "category": "claim",
+      "text": "할빅은 우물 60피트 아래 측면 통로로 물이 샌다고 설명한다.",
+      "topics": [
+        "well",
+        "quest"
+      ],
+      "entities": [
+        "우물",
+        "60피트",
+        "측면 통로"
+      ],
+      "source_card_id": "scn-s1-npc-halvik",
+      "source_field": "dialogue.first_person_facts[2]",
+      "direct_or_heard": "claim",
+      "knowers": [
+        "할빅"
+      ],
+      "reveal": {
+        "reveal_after": 1,
+        "owner": "all",
+        "req_flag": "",
+        "room": "halvik_house",
+        "policy": "caller_supplies_engine_eligible_retrieval_ids"
+      },
+      "retrieval_card_ids": [],
+      "use_policy": "support_when_relevant; not a line to recite or a topic to force"
+    },
+    {
+      "id": "halvik.survey-task",
+      "category": "quest_contract",
+      "text": "할빅이 플레이어에게 부탁하는 첫 일은 물길과 아래로 통하는 상황을 살펴보고 돌아와 알려주는 탐사다.",
+      "topics": [
+        "quest",
+        "quest_scope"
+      ],
+      "entities": [
+        "할빅",
+        "플레이어",
+        "물길"
+      ],
+      "source_card_id": "scn-s1-npc-halvik",
+      "source_field": "dialogue.first_person_facts[3]",
+      "direct_or_heard": "contract",
+      "knowers": [
+        "할빅"
+      ],
+      "reveal": {
+        "reveal_after": 1,
+        "owner": "all",
+        "req_flag": "",
+        "room": "halvik_house",
+        "policy": "caller_supplies_engine_eligible_retrieval_ids"
+      },
+      "retrieval_card_ids": [],
+      "use_policy": "support_when_relevant; not a line to recite or a topic to force"
+    },
+    {
+      "id": "halvik.advance",
+      "category": "quest_contract",
+      "text": "의뢰를 맡으면 장비·물자 준비용 선금 50gp를 의뢰 수락 때 한 번 지원한다.",
+      "topics": [
+        "quest_terms",
+        "payment"
+      ],
+      "entities": [
+        "할빅",
+        "플레이어",
+        "50gp"
+      ],
+      "source_card_id": "scn-s1-npc-halvik",
+      "source_field": "dialogue.quest_offer.advance",
+      "direct_or_heard": "contract",
+      "knowers": [
+        "할빅"
+      ],
+      "reveal": {
+        "reveal_after": 1,
+        "owner": "all",
+        "req_flag": "",
+        "room": "halvik_house",
+        "policy": "caller_supplies_engine_eligible_retrieval_ids"
+      },
+      "retrieval_card_ids": [],
+      "use_policy": "support_when_relevant; not a line to recite or a topic to force"
+    },
+    {
+      "id": "halvik.no-extra-payment",
+      "category": "quest_contract",
+      "text": "50gp는 탐사 준비용 선금이며, 성공 보수나 별도 추가 보수는 정하지 않았다.",
+      "topics": [
+        "quest_terms",
+        "payment"
+      ],
+      "entities": [
+        "할빅",
+        "플레이어",
+        "50gp"
+      ],
+      "source_card_id": "scn-s1-npc-halvik",
+      "source_field": "dialogue.first_person_facts[5]",
+      "direct_or_heard": "contract",
+      "knowers": [
+        "할빅"
+      ],
+      "reveal": {
+        "reveal_after": 1,
+        "owner": "all",
+        "req_flag": "",
+        "room": "halvik_house",
+        "policy": "caller_supplies_engine_eligible_retrieval_ids"
+      },
+      "retrieval_card_ids": [],
+      "use_policy": "support_when_relevant; not a line to recite or a topic to force"
+    },
+    {
+      "id": "halvik.missing-people",
+      "category": "hearsay",
+      "text": "주민들이 실종되었다는 이야기를 알고 있으며 물으면 그런 일이 있었다고 인정한다.",
+      "topics": [
+        "missing_people"
+      ],
+      "entities": [
+        "주민들"
+      ],
+      "source_card_id": "scn-s1-npc-halvik",
+      "source_field": "dialogue.first_person_facts[6]",
+      "direct_or_heard": "heard",
+      "knowers": [
+        "할빅"
+      ],
+      "reveal": {
+        "reveal_after": 1,
+        "owner": "all",
+        "req_flag": "",
+        "room": "halvik_house",
+        "policy": "caller_supplies_engine_eligible_retrieval_ids"
+      },
+      "retrieval_card_ids": [],
+      "use_policy": "support_when_relevant; not a line to recite or a topic to force"
+    },
+    {
+      "id": "halvik.wind-claim",
+      "category": "claim",
+      "text": "할빅은 종소리를 바람 소리라고 주장하지만 실제 원인으로 확인된 설명은 아니다.",
+      "topics": [
+        "bell",
+        "cause"
+      ],
+      "entities": [
+        "종소리",
+        "바람"
+      ],
+      "source_card_id": "scn-s1-npc-halvik",
+      "source_field": "dialogue.first_person_facts[7]",
+      "direct_or_heard": "claim",
+      "knowers": [
+        "할빅"
+      ],
+      "reveal": {
+        "reveal_after": 1,
+        "owner": "all",
+        "req_flag": "",
+        "room": "halvik_house",
+        "policy": "caller_supplies_engine_eligible_retrieval_ids"
+      },
+      "retrieval_card_ids": [],
+      "use_policy": "support_when_relevant; not a line to recite or a topic to force"
+    },
+    {
+      "id": "halvik.unknown-survivors",
+      "category": "knowledge_limit",
+      "text": "실종자들이 지금 살아 있는지는 모른다.",
+      "topics": [
+        "missing_people",
+        "current_status"
+      ],
+      "entities": [
+        "실종자들"
+      ],
+      "source_card_id": "scn-s1-npc-halvik",
+      "source_field": "dialogue.knowledge.unknown[1]",
+      "direct_or_heard": "unknown",
+      "knowers": [
+        "할빅"
+      ],
+      "reveal": {
+        "reveal_after": 1,
+        "owner": "all",
+        "req_flag": "",
+        "room": "halvik_house",
+        "policy": "caller_supplies_engine_eligible_retrieval_ids"
+      },
+      "retrieval_card_ids": [],
+      "use_policy": "support_when_relevant; not a line to recite or a topic to force"
+    },
+    {
+      "id": "halvik.unknown-site-state",
+      "category": "knowledge_limit",
+      "text": "플레이어가 아직 조사하지 않은 현장의 현재 상태는 알지 못한다.",
+      "topics": [
+        "exploration",
+        "current_status"
+      ],
+      "entities": [
+        "플레이어",
+        "현장"
+      ],
+      "source_card_id": "scn-s1-npc-halvik",
+      "source_field": "dialogue.knowledge.unknown[0]",
+      "direct_or_heard": "unknown",
+      "knowers": [
+        "할빅"
+      ],
+      "reveal": {
+        "reveal_after": 1,
+        "owner": "all",
+        "req_flag": "",
+        "room": "halvik_house",
+        "policy": "caller_supplies_engine_eligible_retrieval_ids"
+      },
+      "retrieval_card_ids": [],
+      "use_policy": "support_when_relevant; not a line to recite or a topic to force"
+    },
+    {
+      "id": "sera.spouse",
+      "category": "relationship",
+      "text": "세라의 남편은 토브이며, 토브는 마을의 채석공이다.",
+      "topics": [
+        "relationships"
+      ],
+      "entities": [
+        "세라",
+        "토브"
+      ],
+      "source_card_id": "scn-q1-npc-sera",
+      "source_field": "dialogue.first_person_facts[1]",
+      "direct_or_heard": "direct",
+      "knowers": [
+        "세라"
+      ],
+      "reveal": {
+        "reveal_after": 1,
+        "owner": "all",
+        "req_flag": "",
+        "room": "village_square",
+        "policy": "caller_supplies_engine_eligible_retrieval_ids"
+      },
+      "retrieval_card_ids": [],
+      "use_policy": "support_when_relevant; not a line to recite or a topic to force",
+      "subject": "세라",
+      "claims": [
+        {
+          "subject": "세라",
+          "predicate": "spouse",
+          "object": "토브"
+        },
+        {
+          "subject": "토브",
+          "predicate": "occupation",
+          "object": "채석공"
+        }
+      ]
+    },
+    {
+      "id": "sera.child",
+      "category": "relationship",
+      "text": "리나는 세라와 토브의 딸이다.",
+      "topics": [
+        "relationships"
+      ],
+      "entities": [
+        "세라",
+        "토브",
+        "리나"
+      ],
+      "source_card_id": "scn-q1-npc-sera",
+      "source_field": "dialogue.first_person_facts[2]",
+      "direct_or_heard": "direct",
+      "knowers": [
+        "세라"
+      ],
+      "reveal": {
+        "reveal_after": 1,
+        "owner": "all",
+        "req_flag": "",
+        "room": "village_square",
+        "policy": "caller_supplies_engine_eligible_retrieval_ids"
+      },
+      "retrieval_card_ids": [],
+      "use_policy": "support_when_relevant; not a line to recite or a topic to force",
+      "subject": "세라",
+      "claims": [
+        {
+          "subject": "세라",
+          "predicate": "parent_of",
+          "object": "리나"
+        },
+        {
+          "subject": "토브",
+          "predicate": "parent_of",
+          "object": "리나"
+        }
+      ]
+    },
+    {
+      "id": "sera.child-age",
+      "category": "relationship",
+      "text": "세라와 토브의 딸 리나는 열한 살이다.",
+      "topics": [
+        "relationships",
+        "age"
+      ],
+      "entities": [
+        "리나"
+      ],
+      "source_card_id": "scn-q1-npc-sera",
+      "source_field": "dialogue.first_person_facts[2]",
+      "direct_or_heard": "direct",
+      "knowers": [
+        "세라"
+      ],
+      "reveal": {
+        "reveal_after": 1,
+        "owner": "all",
+        "req_flag": "",
+        "room": "village_square",
+        "policy": "caller_supplies_engine_eligible_retrieval_ids"
+      },
+      "retrieval_card_ids": [],
+      "use_policy": "support_when_relevant; not a line to recite or a topic to force",
+      "subject": "리나",
+      "claims": [
+        {
+          "subject": "리나",
+          "predicate": "age",
+          "object": 11
+        }
+      ]
+    },
+    {
+      "id": "sera.missing-family",
+      "category": "event",
+      "text": "세라의 남편 토브와 딸 리나는 실종되었다.",
+      "topics": [
+        "missing_people",
+        "family"
+      ],
+      "entities": [
+        "세라",
+        "토브",
+        "리나"
+      ],
+      "source_card_id": "scn-q1-npc-sera",
+      "source_field": "player_text",
+      "direct_or_heard": "direct",
+      "knowers": [
+        "세라"
+      ],
+      "reveal": {
+        "reveal_after": 1,
+        "owner": "all",
+        "req_flag": "",
+        "room": "village_square",
+        "policy": "caller_supplies_engine_eligible_retrieval_ids"
+      },
+      "retrieval_card_ids": [
+        "scn-s1-clue-missing"
+      ],
+      "use_policy": "support_when_relevant; not a line to recite or a topic to force",
+      "subject": "세라",
+      "claims": [
+        {
+          "subject": "토브",
+          "predicate": "reported_status",
+          "object": "실종"
+        },
+        {
+          "subject": "리나",
+          "predicate": "reported_status",
+          "object": "실종"
+        }
+      ]
+    },
+    {
+      "id": "sera.unknown-family-state",
+      "category": "knowledge_limit",
+      "text": "세라는 남편 토브와 딸 리나의 생사와 현재 행방을 아직 모른다.",
+      "topics": [
+        "missing_people",
+        "current_status",
+        "cause"
+      ],
+      "entities": [
+        "토브",
+        "리나"
+      ],
+      "source_card_id": "scn-q1-npc-sera",
+      "source_field": "dialogue.first_person_facts[4]",
+      "direct_or_heard": "unknown",
+      "knowers": [
+        "세라"
+      ],
+      "reveal": {
+        "reveal_after": 1,
+        "owner": "all",
+        "req_flag": "",
+        "room": "village_square",
+        "policy": "caller_supplies_engine_eligible_retrieval_ids"
+      },
+      "retrieval_card_ids": [
+        "scn-s1-clue-missing"
+      ],
+      "use_policy": "support_when_relevant; not a line to recite or a topic to force"
+    },
+    {
+      "id": "sera.bell-memory",
+      "category": "memory",
+      "text": "세라의 남편 토브와 딸 리나가 사라진 날 밤에 우물 쪽 종소리가 유난히 컸다.",
+      "knowledge_basis": {
+        "확인 방식": "개인 청각 기억",
+        "경험 주체": "세라",
+        "감각": "청각",
+        "경험 내용": "가족이 사라진 날 밤 우물 쪽 종소리가 유난히 크게 들렸던 기억",
+        "시점 범위": "가족이 실종된 날 밤의 과거 기억",
+        "경험 범위": "그 소리의 과거 청각 경험에 한정함. 사건의 시각 목격·원인·현재 관찰을 입증하지 않음"
+      },
+      "topics": [
+        "bell",
+        "missing_people"
+      ],
+      "entities": [
+        "토브",
+        "리나",
+        "우물",
+        "종소리"
+      ],
+      "source_card_id": "scn-q1-npc-sera",
+      "source_field": "dialogue.first_person_facts[5]",
+      "direct_or_heard": "direct",
+      "knowers": [
+        "세라"
+      ],
+      "reveal": {
+        "reveal_after": 1,
+        "owner": "all",
+        "req_flag": "",
+        "room": "village_square",
+        "policy": "caller_supplies_engine_eligible_retrieval_ids"
+      },
+      "retrieval_card_ids": [],
+      "use_policy": "support_when_relevant; not a line to recite or a topic to force"
+    },
+    {
+      "id": "sera.unknown-bell-cause",
+      "category": "knowledge_limit",
+      "text": "종소리의 원인과 지하의 정체는 모른다.",
+      "topics": [
+        "bell",
+        "cause",
+        "underground"
+      ],
+      "entities": [
+        "종소리",
+        "지하"
+      ],
+      "source_card_id": "scn-q1-npc-sera",
+      "source_field": "dialogue.knowledge.unknown[1:3]",
+      "direct_or_heard": "unknown",
+      "knowers": [
+        "세라"
+      ],
+      "reveal": {
+        "reveal_after": 1,
+        "owner": "all",
+        "req_flag": "",
+        "room": "village_square",
+        "policy": "caller_supplies_engine_eligible_retrieval_ids"
+      },
+      "retrieval_card_ids": [],
+      "use_policy": "support_when_relevant; not a line to recite or a topic to force"
+    },
+    {
+      "id": "sera.help-request",
+      "category": "character_goal",
+      "text": "세라는 남편 토브와 딸 리나의 행방과 생사를 확인하고 싶어, 도울 의향이 있는 사람에게 가족 수색을 부탁하고 싶다.",
+      "topics": [
+        "help",
+        "quest"
+      ],
+      "entities": [
+        "세라",
+        "토브",
+        "리나"
+      ],
+      "source_card_id": "scn-q1-npc-sera",
+      "source_field": "dialogue.goals",
+      "direct_or_heard": "intention",
+      "knowers": [
+        "세라"
+      ],
+      "reveal": {
+        "reveal_after": 1,
+        "owner": "all",
+        "req_flag": "",
+        "room": "village_square",
+        "policy": "caller_supplies_engine_eligible_retrieval_ids"
+      },
+      "retrieval_card_ids": [],
+      "use_policy": "support_when_relevant; not a line to recite or a topic to force"
+    },
+    {
+      "id": "sera.doll-history",
+      "category": "memory",
+      "text": "리나는 밤마다 작은 인형을 들고 다녔다.",
+      "topics": [
+        "doll",
+        "family"
+      ],
+      "entities": [
+        "리나",
+        "인형"
+      ],
+      "source_card_id": "scn-q1-npc-sera",
+      "source_field": "dialogue.first_person_facts[6]",
+      "direct_or_heard": "direct",
+      "knowers": [
+        "세라"
+      ],
+      "reveal": {
+        "reveal_after": 1,
+        "owner": "all",
+        "req_flag": "",
+        "room": "village_square",
+        "policy": "caller_supplies_engine_eligible_retrieval_ids"
+      },
+      "retrieval_card_ids": [],
+      "use_policy": "support_when_relevant; not a line to recite or a topic to force"
+    },
+    {
+      "id": "sera.doll-offer",
+      "category": "item_context",
+      "text": "세라는 리나가 인형을 알아볼 수 있도록, 리나가 밤마다 들고 다니던 인형을 수색에 맡길 의향이 있다. 실제 전달 여부는 엔진 기록으로 확인한다.",
+      "topics": [
+        "doll",
+        "help"
+      ],
+      "entities": [
+        "리나",
+        "인형",
+        "플레이어"
+      ],
+      "source_card_id": "scn-q1-npc-sera",
+      "source_field": "dialogue.first_person_facts[6]",
+      "direct_or_heard": "offer",
+      "knowers": [
+        "세라"
+      ],
+      "reveal": {
+        "reveal_after": 1,
+        "owner": "all",
+        "req_flag": "",
+        "room": "village_square",
+        "policy": "caller_supplies_engine_eligible_retrieval_ids"
+      },
+      "retrieval_card_ids": [],
+      "use_policy": "support_when_relevant; not a line to recite or a topic to force"
+    },
+    {
+      "id": "sera.heard-bell",
+      "category": "hearsay",
+      "text": "우물 쪽에서 종소리가 난다는 마을 소문을 들었다.",
+      "knowledge_basis": {
+        "확인 방식": "전해 들은 마을 소문",
+        "지식 보유자": "세라",
+        "경험 범위": "우물 쪽에서 소리가 난다는 말을 전해 들음. 현재 소리의 직접 관찰이나 다른 개인 청각 기억을 대신하지 않음"
+      },
+      "topics": [
+        "rumors",
+        "bell"
+      ],
+      "entities": [
+        "마을 사람들",
+        "우물",
+        "종소리"
+      ],
+      "source_card_id": "scn-q1-npc-sera",
+      "source_field": "dialogue.knowledge.heard[0]",
+      "direct_or_heard": "heard",
+      "knowers": [
+        "세라"
+      ],
+      "reveal": {
+        "reveal_after": 1,
+        "owner": "all",
+        "req_flag": "",
+        "room": "village_square",
+        "policy": "caller_supplies_engine_eligible_retrieval_ids"
+      },
+      "retrieval_card_ids": [
+        "scn-g-rumors"
+      ],
+      "use_policy": "support_when_relevant; not a line to recite or a topic to force"
+    },
+    {
+      "id": "mera.former-role",
+      "category": "identity",
+      "text": "메라는 전에 마을의 우물을 지키던 사람이다.",
+      "topics": [
+        "identity",
+        "occupation"
+      ],
+      "entities": [
+        "메라",
+        "우물"
+      ],
+      "source_card_id": "scn-s1-npc-mera",
+      "source_field": "dialogue.first_person_facts[0]",
+      "direct_or_heard": "direct",
+      "knowers": [
+        "메라"
+      ],
+      "reveal": {
+        "reveal_after": 1,
+        "owner": "all",
+        "req_flag": "",
+        "room": "well_side",
+        "policy": "caller_supplies_engine_eligible_retrieval_ids"
+      },
+      "retrieval_card_ids": [],
+      "use_policy": "support_when_relevant; not a line to recite or a topic to force"
+    },
+    {
+      "id": "mera.sight",
+      "category": "perception",
+      "text": "메라는 눈이 거의 보이지 않아 상대의 모습보다 목소리와 발소리로 알아챈다.",
+      "topics": [
+        "perception"
+      ],
+      "entities": [
+        "메라",
+        "플레이어"
+      ],
+      "source_card_id": "scn-s1-npc-mera",
+      "source_field": "dialogue.first_person_facts[1]",
+      "direct_or_heard": "direct",
+      "knowers": [
+        "메라"
+      ],
+      "reveal": {
+        "reveal_after": 1,
+        "owner": "all",
+        "req_flag": "",
+        "room": "well_side",
+        "policy": "caller_supplies_engine_eligible_retrieval_ids"
+      },
+      "retrieval_card_ids": [],
+      "use_policy": "support_when_relevant; not a line to recite or a topic to force"
+    },
+    {
+      "id": "mera.monastery-story",
+      "category": "hearsay",
+      "text": "옛날 우물 아래에 수도원이 있었다는 이야기를 기억한다.",
+      "topics": [
+        "history",
+        "monastery"
+      ],
+      "entities": [
+        "우물",
+        "수도원"
+      ],
+      "source_card_id": "scn-s1-npc-mera",
+      "source_field": "dialogue.first_person_facts[2]",
+      "direct_or_heard": "heard",
+      "knowers": [
+        "메라"
+      ],
+      "reveal": {
+        "reveal_after": 1,
+        "owner": "all",
+        "req_flag": "",
+        "room": "well_side",
+        "policy": "caller_supplies_engine_eligible_retrieval_ids"
+      },
+      "retrieval_card_ids": [],
+      "use_policy": "support_when_relevant; not a line to recite or a topic to force"
+    },
+    {
+      "id": "mera.elders-warning",
+      "category": "hearsay",
+      "text": "옛 어른들은 종이 울리면 아무도 우물에 가지 않았다고 했다.",
+      "topics": [
+        "history",
+        "bell",
+        "rumors"
+      ],
+      "entities": [
+        "옛 어른들",
+        "우물",
+        "종"
+      ],
+      "source_card_id": "scn-s1-npc-mera",
+      "source_field": "dialogue.first_person_facts[3]",
+      "direct_or_heard": "heard",
+      "knowers": [
+        "메라"
+      ],
+      "reveal": {
+        "reveal_after": 1,
+        "owner": "all",
+        "req_flag": "",
+        "room": "well_side",
+        "policy": "caller_supplies_engine_eligible_retrieval_ids"
+      },
+      "retrieval_card_ids": [],
+      "use_policy": "support_when_relevant; not a line to recite or a topic to force"
+    },
+    {
+      "id": "mera.song-memory",
+      "category": "memory",
+      "text": "옛 노래를 기억하지만 그 말의 뜻을 모두 이해하는 것은 아니다.",
+      "topics": [
+        "song",
+        "history"
+      ],
+      "entities": [
+        "메라",
+        "옛 노래"
+      ],
+      "source_card_id": "scn-s1-npc-mera",
+      "source_field": "dialogue.first_person_facts[4]",
+      "direct_or_heard": "direct",
+      "knowers": [
+        "메라"
+      ],
+      "reveal": {
+        "reveal_after": 1,
+        "owner": "all",
+        "req_flag": "",
+        "room": "well_side",
+        "policy": "caller_supplies_engine_eligible_retrieval_ids"
+      },
+      "retrieval_card_ids": [
+        "scn-q4-npc-mera-song"
+      ],
+      "use_policy": "support_when_relevant; not a line to recite or a topic to force"
+    },
+    {
+      "id": "mera.song-origin",
+      "category": "memory",
+      "text": "어릴 적 할머니가 불러 준 노래의 가락을 기억한다.",
+      "topics": [
+        "song",
+        "history",
+        "relationships"
+      ],
+      "entities": [
+        "메라",
+        "할머니"
+      ],
+      "source_card_id": "scn-q4-npc-mera-song",
+      "source_field": "player_text",
+      "direct_or_heard": "direct",
+      "knowers": [
+        "메라"
+      ],
+      "reveal": {
+        "reveal_after": 1,
+        "owner": "all",
+        "req_flag": "",
+        "room": "well_side",
+        "policy": "caller_supplies_engine_eligible_retrieval_ids"
+      },
+      "retrieval_card_ids": [
+        "scn-q4-npc-mera-song"
+      ],
+      "use_policy": "support_when_relevant; not a line to recite or a topic to force"
+    },
+    {
+      "id": "mera.unknown-mechanism",
+      "category": "knowledge_limit",
+      "text": "노래와 종이 정확히 어떻게 작동하는지는 모른다.",
+      "topics": [
+        "song",
+        "bell",
+        "cause"
+      ],
+      "entities": [
+        "노래",
+        "종"
+      ],
+      "source_card_id": "scn-s1-npc-mera",
+      "source_field": "dialogue.knowledge.unknown[0]",
+      "direct_or_heard": "unknown",
+      "knowers": [
+        "메라"
+      ],
+      "reveal": {
+        "reveal_after": 1,
+        "owner": "all",
+        "req_flag": "",
+        "room": "well_side",
+        "policy": "caller_supplies_engine_eligible_retrieval_ids"
+      },
+      "retrieval_card_ids": [],
+      "use_policy": "support_when_relevant; not a line to recite or a topic to force"
+    },
+    {
+      "id": "mera.unknown-missing",
+      "category": "knowledge_limit",
+      "text": "실종자들의 현재 행방은 모른다.",
+      "topics": [
+        "missing_people",
+        "current_status"
+      ],
+      "entities": [
+        "실종자들"
+      ],
+      "source_card_id": "scn-s1-npc-mera",
+      "source_field": "dialogue.knowledge.unknown[1]",
+      "direct_or_heard": "unknown",
+      "knowers": [
+        "메라"
+      ],
+      "reveal": {
+        "reveal_after": 1,
+        "owner": "all",
+        "req_flag": "",
+        "room": "well_side",
+        "policy": "caller_supplies_engine_eligible_retrieval_ids"
+      },
+      "retrieval_card_ids": [],
+      "use_policy": "support_when_relevant; not a line to recite or a topic to force"
+    },
+    {
+      "id": "gran.past-work",
+      "category": "identity",
+      "text": "그란은 채석장 연장을 손보던 사람이다.",
+      "topics": [
+        "identity",
+        "occupation"
+      ],
+      "entities": [
+        "그란",
+        "채석장"
+      ],
+      "source_card_id": "scn-m-npc-smith",
+      "source_field": "dialogue.first_person_facts[1]",
+      "direct_or_heard": "direct",
+      "knowers": [
+        "그란"
+      ],
+      "reveal": {
+        "reveal_after": 1,
+        "owner": "all",
+        "req_flag": "",
+        "room": "village_market",
+        "policy": "caller_supplies_engine_eligible_retrieval_ids"
+      },
+      "retrieval_card_ids": [],
+      "use_policy": "support_when_relevant; not a line to recite or a topic to force"
+    },
+    {
+      "id": "gran.trade-practice",
+      "category": "trade",
+      "text": "그란은 쇠붙이 거래를 정직하게 한다.",
+      "topics": [
+        "trade",
+        "equipment"
+      ],
+      "entities": [
+        "그란",
+        "손님"
+      ],
+      "source_card_id": "scn-m-npc-smith",
+      "source_field": "dialogue.first_person_facts[1]",
+      "direct_or_heard": "direct",
+      "knowers": [
+        "그란"
+      ],
+      "reveal": {
+        "reveal_after": 1,
+        "owner": "all",
+        "req_flag": "",
+        "room": "village_market",
+        "policy": "caller_supplies_engine_eligible_retrieval_ids"
+      },
+      "retrieval_card_ids": [],
+      "use_policy": "support_when_relevant; not a line to recite or a topic to force"
+    },
+    {
+      "id": "gran.rope-inference",
+      "category": "inference",
+      "text": "밧줄이나 쐐기를 구하는 손님을 보면 우물 아래에 내려가려는지 짐작할 수 있다.",
+      "topics": [
+        "equipment",
+        "exploration"
+      ],
+      "entities": [
+        "밧줄",
+        "쐐기",
+        "손님",
+        "우물"
+      ],
+      "source_card_id": "scn-m-npc-smith",
+      "source_field": "dialogue.first_person_facts[2]",
+      "direct_or_heard": "inference",
+      "knowers": [
+        "그란"
+      ],
+      "reveal": {
+        "reveal_after": 1,
+        "owner": "all",
+        "req_flag": "",
+        "room": "village_market",
+        "policy": "caller_supplies_engine_eligible_retrieval_ids"
+      },
+      "retrieval_card_ids": [],
+      "use_policy": "support_when_relevant; not a line to recite or a topic to force"
+    },
+    {
+      "id": "gran.stock-and-prices",
+      "category": "trade",
+      "text": "약품은 재고가 있는 만큼만 팔며 가격과 재고는 현재 상점 목록에 따른다.",
+      "topics": [
+        "trade",
+        "equipment",
+        "payment"
+      ],
+      "entities": [
+        "그란",
+        "약품",
+        "상점"
+      ],
+      "source_card_id": "scn-m-npc-smith",
+      "source_field": "dialogue.first_person_facts[3]",
+      "direct_or_heard": "engine_rule",
+      "knowers": [
+        "그란"
+      ],
+      "reveal": {
+        "reveal_after": 1,
+        "owner": "all",
+        "req_flag": "",
+        "room": "village_market",
+        "policy": "caller_supplies_engine_eligible_retrieval_ids"
+      },
+      "retrieval_card_ids": [
+        "scn-m-shop-goods"
+      ],
+      "use_policy": "support_when_relevant; not a line to recite or a topic to force"
+    },
+    {
+      "id": "gran.unknown-underground",
+      "category": "knowledge_limit",
+      "text": "실종자의 현재 행방, 종소리의 실제 원인, 지하의 정체는 모른다.",
+      "topics": [
+        "missing_people",
+        "bell",
+        "cause",
+        "underground"
+      ],
+      "entities": [
+        "실종자",
+        "종소리",
+        "지하"
+      ],
+      "source_card_id": "scn-m-npc-smith",
+      "source_field": "dialogue.knowledge.unknown",
+      "direct_or_heard": "unknown",
+      "knowers": [
+        "그란"
+      ],
+      "reveal": {
+        "reveal_after": 1,
+        "owner": "all",
+        "req_flag": "",
+        "room": "village_market",
+        "policy": "caller_supplies_engine_eligible_retrieval_ids"
+      },
+      "retrieval_card_ids": [],
+      "use_policy": "support_when_relevant; not a line to recite or a topic to force"
+    },
+    {
+      "id": "gran.heard-well",
+      "category": "hearsay",
+      "text": "우물에 관한 마을의 소문을 들었다.",
+      "topics": [
+        "rumors",
+        "well"
+      ],
+      "entities": [
+        "마을 사람들",
+        "우물"
+      ],
+      "source_card_id": "scn-m-npc-smith",
+      "source_field": "dialogue.knowledge.heard[0]",
+      "direct_or_heard": "heard",
+      "knowers": [
+        "그란"
+      ],
+      "reveal": {
+        "reveal_after": 1,
+        "owner": "all",
+        "req_flag": "",
+        "room": "village_market",
+        "policy": "caller_supplies_engine_eligible_retrieval_ids"
+      },
+      "retrieval_card_ids": [
+        "scn-g-rumors"
+      ],
+      "use_policy": "support_when_relevant; not a line to recite or a topic to force"
+    },
+    {
+      "id": "odan.lodging",
+      "category": "trade",
+      "text": "오단의 여관에서는 손님이 하룻밤 쉴 수 있다.",
+      "topics": [
+        "lodging",
+        "rest"
+      ],
+      "entities": [
+        "오단",
+        "손님",
+        "여관"
+      ],
+      "source_card_id": "scn-m-npc-innkeeper",
+      "source_field": "dialogue.first_person_facts[1]",
+      "direct_or_heard": "direct",
+      "knowers": [
+        "오단"
+      ],
+      "reveal": {
+        "reveal_after": 1,
+        "owner": "all",
+        "req_flag": "",
+        "room": "village_market",
+        "policy": "caller_supplies_engine_eligible_retrieval_ids"
+      },
+      "retrieval_card_ids": [],
+      "use_policy": "support_when_relevant; not a line to recite or a topic to force"
+    },
+    {
+      "id": "odan.lodging-price",
+      "category": "trade",
+      "text": "숙박비는 한 사람에 5sp이며 긴 휴식에는 8시간이 흐른다.",
+      "topics": [
+        "lodging",
+        "rest",
+        "payment"
+      ],
+      "entities": [
+        "손님",
+        "5sp",
+        "8시간"
+      ],
+      "source_card_id": "scn-m-npc-innkeeper",
+      "source_field": "dialogue.first_person_facts[2]",
+      "direct_or_heard": "engine_rule",
+      "knowers": [
+        "오단"
+      ],
+      "reveal": {
+        "reveal_after": 1,
+        "owner": "all",
+        "req_flag": "",
+        "room": "village_market",
+        "policy": "caller_supplies_engine_eligible_retrieval_ids"
+      },
+      "retrieval_card_ids": [],
+      "use_policy": "support_when_relevant; not a line to recite or a topic to force"
+    },
+    {
+      "id": "odan.night-warning",
+      "category": "statement",
+      "text": "오단은 손님들에게 밤에는 우물 곁을 조심하라고 말한다.",
+      "topics": [
+        "well",
+        "warning"
+      ],
+      "entities": [
+        "오단",
+        "손님",
+        "우물"
+      ],
+      "source_card_id": "scn-m-npc-innkeeper",
+      "source_field": "dialogue.first_person_facts[3]",
+      "direct_or_heard": "direct",
+      "knowers": [
+        "오단"
+      ],
+      "reveal": {
+        "reveal_after": 1,
+        "owner": "all",
+        "req_flag": "",
+        "room": "village_market",
+        "policy": "caller_supplies_engine_eligible_retrieval_ids"
+      },
+      "retrieval_card_ids": [],
+      "use_policy": "support_when_relevant; not a line to recite or a topic to force"
+    },
+    {
+      "id": "odan.heard-rumors",
+      "category": "hearsay",
+      "text": "오단은 주민들에게 들은 밤의 우물과 종소리 이야기를 알지만 직접 본 일로 단정할 수 없다.",
+      "topics": [
+        "rumors",
+        "bell",
+        "well"
+      ],
+      "entities": [
+        "주민들",
+        "우물",
+        "종소리"
+      ],
+      "source_card_id": "scn-m-npc-innkeeper",
+      "source_field": "dialogue.first_person_facts[4]",
+      "direct_or_heard": "heard",
+      "knowers": [
+        "오단"
+      ],
+      "reveal": {
+        "reveal_after": 1,
+        "owner": "all",
+        "req_flag": "",
+        "room": "village_market",
+        "policy": "caller_supplies_engine_eligible_retrieval_ids"
+      },
+      "retrieval_card_ids": [
+        "scn-g-rumors"
+      ],
+      "use_policy": "support_when_relevant; not a line to recite or a topic to force"
+    },
+    {
+      "id": "odan.halvik-rumor",
+      "category": "hearsay",
+      "text": "사람들은 촌장이 전에는 달마다 폐채석장 입구에 상자를 두고 왔으나 반년 전부터는 가지 않고 밤마다 우물가에 서 있다고 전한다. 액막이나 마을을 위한 일이라는 해석은 확인된 사실이 아니다.",
+      "topics": [
+        "rumors",
+        "halvik"
+      ],
+      "entities": [
+        "할빅",
+        "폐채석장",
+        "상자",
+        "우물"
+      ],
+      "source_card_id": "scn-v8-rumor-halvik",
+      "source_field": "player_text",
+      "direct_or_heard": "heard",
+      "knowers": [
+        "오단"
+      ],
+      "reveal": {
+        "reveal_after": 1,
+        "owner": "all",
+        "req_flag": "",
+        "room": "village_market",
+        "policy": "caller_supplies_engine_eligible_retrieval_ids"
+      },
+      "retrieval_card_ids": [
+        "scn-v8-rumor-halvik"
+      ],
+      "use_policy": "support_when_relevant; not a line to recite or a topic to force"
+    },
+    {
+      "id": "odan.unknown-underground",
+      "category": "knowledge_limit",
+      "text": "지하 사건의 정확한 원인과 실종자들의 현재 위치는 모른다.",
+      "topics": [
+        "cause",
+        "underground",
+        "missing_people",
+        "current_status"
+      ],
+      "entities": [
+        "지하",
+        "실종자들"
+      ],
+      "source_card_id": "scn-m-npc-innkeeper",
+      "source_field": "dialogue.knowledge.unknown",
+      "direct_or_heard": "unknown",
+      "knowers": [
+        "오단"
+      ],
+      "reveal": {
+        "reveal_after": 1,
+        "owner": "all",
+        "req_flag": "",
+        "room": "village_market",
+        "policy": "caller_supplies_engine_eligible_retrieval_ids"
+      },
+      "retrieval_card_ids": [],
+      "use_policy": "support_when_relevant; not a line to recite or a topic to force"
+    },
+    {
+      "id": "gran.disclosure-boundary",
+      "category": "disclosure",
+      "text": "그란은 우물 아래 이야기를 자세히 하고 싶어 하지 않는다.",
+      "topics": [
+        "underground"
+      ],
+      "entities": [
+        "실종자",
+        "종소리",
+        "지하"
+      ],
+      "source_card_id": "scn-m-npc-smith",
+      "source_field": "dialogue.first_person_facts[4]",
+      "direct_or_heard": "intention",
+      "knowers": [
+        "그란"
+      ],
+      "reveal": {
+        "reveal_after": 1,
+        "owner": "all",
+        "req_flag": "",
+        "room": "village_market",
+        "policy": "caller_supplies_engine_eligible_retrieval_ids"
+      },
+      "retrieval_card_ids": [],
+      "use_policy": "support_when_relevant; not a line to recite or a topic to force"
+    },
+    {
+      "id": "public.missing-persons",
+      "category": "hearsay",
+      "subject": "마을의 실종 신고",
+      "text": "실종자 셋. 모두 지난 두 달 사이, 모두 밤에, 모두 우물 근처에서 마지막으로 목격됐다. 토브(채석공, 34세), 리나(토브의 딸, 11세), 가렌(떠돌이 땜장이, 나이 미상). 시신은 발견되지 않았다. 마을 사람들은 늑대나 도적 탓으로 돌리고 싶어 한다.",
+      "knowledge_basis": {
+        "확인 방식": "공개된 실종 · 마지막 목격 정보",
+        "경험 범위": "보고에 적힌 사람·장소·기간만 뒷받침함. 원문에 목격자가 지정되지 않아 이 정보를 아는 NPC가 직접 보았다고 단정할 수 없음"
+      },
+      "topics": [
+        "missing_people",
+        "identity"
+      ],
+      "entities": [
+        "토브",
+        "리나",
+        "가렌"
+      ],
+      "claims": [
+        {
+          "subject": {
+            "entity_id": "person:tove",
+            "name": "토브",
+            "role": "채석공"
+          },
+          "predicate": "reported_status",
+          "object": "실종"
+        },
+        {
+          "subject": {
+            "entity_id": "person:lina",
+            "name": "리나",
+            "role": "토브와 세라의 딸"
+          },
+          "predicate": "reported_status",
+          "object": "실종"
+        },
+        {
+          "subject": {
+            "entity_id": "person:garen",
+            "name": "가렌",
+            "role": "떠돌이 땜장이"
+          },
+          "predicate": "reported_status",
+          "object": "실종"
+        }
+      ],
+      "source_card_id": "scn-s1-clue-missing",
+      "source_field": "player_text",
+      "direct_or_heard": "heard",
+      "knowers": [
+        "할빅",
+        "메라",
+        "세라",
+        "그란",
+        "오단"
+      ],
+      "reveal": {
+        "reveal_after": 1,
+        "owner": "all",
+        "req_flag": "",
+        "room": "village_square",
+        "policy": "caller_supplies_engine_eligible_retrieval_ids"
+      },
+      "retrieval_card_ids": [],
+      "use_policy": "public_report_when_relevant; not_direct_observation_or_current_whereabouts"
+    },
+    {
+      "id": "sera.age-range",
+      "category": "identity",
+      "text": "세라의 나이 범위는 30대 후반이다.",
+      "subject": "세라",
+      "topics": [
+        "identity",
+        "age"
+      ],
+      "entities": [
+        "세라"
+      ],
+      "source_card_id": "scn-q1-npc-sera",
+      "source_field": "dialogue.first_person_facts[7]",
+      "direct_or_heard": "self_profile",
+      "knowers": [
+        "세라"
+      ],
+      "claims": [
+        {
+          "subject": "세라",
+          "predicate": "age_range",
+          "object": "30대 후반"
+        }
+      ],
+      "knowledge_basis": {
+        "확인 방식": "원본 공개 인물 설정의 명시된 연령대",
+        "지식 보유자": "세라",
+        "경험 범위": "자신의 명시된 연령대에 한정함. 정확한 나이·출생연도·타인의 신상·현재 감각 관찰을 입증하지 않음"
+      },
+      "reveal": {
+        "reveal_after": 1,
+        "owner": "all",
+        "req_flag": "",
+        "room": "village_square",
+        "policy": "caller_supplies_engine_eligible_retrieval_ids"
+      },
+      "retrieval_card_ids": [],
+      "use_policy": "source-backed own profile; preserve outside relevance ranking; not a line to recite",
+      "provenance": {
+        "repository": "TRPG-masterbot/data",
+        "commit": "56943300126669f4805df8a58dd6c9d2f25e18d2",
+        "path": "Kim/TheDrownedBell/game/data/cards.json",
+        "sha256": "b3f8533dd7ee390ea09a8b4c1a86af0b8631e7a22e0a0e4b4c5ec05713b430c4",
+        "card_id": "scn-q1-npc-sera",
+        "field": "player_text",
+        "excerpt": "30대 후반",
+        "scope": "explicit_public_character_setting_not_appearance_inference"
+      }
+    },
+    {
+      "id": "halvik.age-range",
+      "category": "identity",
+      "text": "할빅의 나이 범위는 60대이다.",
+      "subject": "할빅",
+      "topics": [
+        "identity",
+        "age"
+      ],
+      "entities": [
+        "할빅"
+      ],
+      "source_card_id": "scn-s1-npc-halvik",
+      "source_field": "dialogue.first_person_facts[8]",
+      "direct_or_heard": "self_profile",
+      "knowers": [
+        "할빅"
+      ],
+      "claims": [
+        {
+          "subject": "할빅",
+          "predicate": "age_range",
+          "object": "60대"
+        }
+      ],
+      "knowledge_basis": {
+        "확인 방식": "원본 공개 인물 설정의 명시된 연령대",
+        "지식 보유자": "할빅",
+        "경험 범위": "자신의 명시된 연령대에 한정함. 정확한 나이·출생연도·타인의 신상·현재 감각 관찰을 입증하지 않음"
+      },
+      "reveal": {
+        "reveal_after": 1,
+        "owner": "all",
+        "req_flag": "",
+        "room": "halvik_house",
+        "policy": "caller_supplies_engine_eligible_retrieval_ids"
+      },
+      "retrieval_card_ids": [],
+      "use_policy": "source-backed own profile; preserve outside relevance ranking; not a line to recite",
+      "provenance": {
+        "repository": "TRPG-masterbot/data",
+        "commit": "56943300126669f4805df8a58dd6c9d2f25e18d2",
+        "path": "Kim/TheDrownedBell/game/data/cards.json",
+        "sha256": "b3f8533dd7ee390ea09a8b4c1a86af0b8631e7a22e0a0e4b4c5ec05713b430c4",
+        "card_id": "scn-s1-npc-halvik",
+        "field": "player_text",
+        "excerpt": "60대",
+        "scope": "explicit_public_character_setting_not_appearance_inference"
+      }
+    },
+    {
+      "id": "mera.age-range",
+      "category": "identity",
+      "text": "메라의 나이 범위는 80대이다.",
+      "subject": "메라",
+      "topics": [
+        "identity",
+        "age"
+      ],
+      "entities": [
+        "메라"
+      ],
+      "source_card_id": "scn-s1-npc-mera",
+      "source_field": "dialogue.first_person_facts[5]",
+      "direct_or_heard": "self_profile",
+      "knowers": [
+        "메라"
+      ],
+      "claims": [
+        {
+          "subject": "메라",
+          "predicate": "age_range",
+          "object": "80대"
+        }
+      ],
+      "knowledge_basis": {
+        "확인 방식": "원본 공개 인물 설정의 명시된 연령대",
+        "지식 보유자": "메라",
+        "경험 범위": "자신의 명시된 연령대에 한정함. 정확한 나이·출생연도·타인의 신상·현재 감각 관찰을 입증하지 않음"
+      },
+      "reveal": {
+        "reveal_after": 1,
+        "owner": "all",
+        "req_flag": "",
+        "room": "well_side",
+        "policy": "caller_supplies_engine_eligible_retrieval_ids"
+      },
+      "retrieval_card_ids": [],
+      "use_policy": "source-backed own profile; preserve outside relevance ranking; not a line to recite",
+      "provenance": {
+        "repository": "TRPG-masterbot/data",
+        "commit": "56943300126669f4805df8a58dd6c9d2f25e18d2",
+        "path": "Kim/TheDrownedBell/game/data/cards.json",
+        "sha256": "b3f8533dd7ee390ea09a8b4c1a86af0b8631e7a22e0a0e4b4c5ec05713b430c4",
+        "card_id": "scn-s1-npc-mera",
+        "field": "player_text",
+        "excerpt": "80대",
+        "scope": "explicit_public_character_setting_not_appearance_inference"
+      }
+    }
+  ],
+  "public_identity_policy": {
+    "source": "character_lookup_core.connect_character_sources: known_characters/public_identity",
+    "content": "name and short role only, when explicitly mentioned",
+    "eligibility": "prefer caller-approved eligible_public_people_ids; absent that list, only all-class/no-flag identities already introduced by the selected actor's earliest scene",
+    "limit": "public identity does not establish friendship, shared memories, current location, private knowledge or a completed introduction"
+  }
+}
