@@ -1,6 +1,18 @@
-<h3>Input_Code_0.14_ver.ipynb    -- (2026_11_20 업로드)</h3>
+<h3>Input_Code_0.14_ver.ipynb    -- (2026_11_23 업로드)</h3>
 
 <ul>
+  <li>
+    <small>불필요한 테스트 코드 정리</small>
+  </li>
+  <li>
+    <small>주석 추가 및 오류 수정</small>
+  </li>
+  <li>
+
+  </li>
+  <li>
+    <small>---- (2026_11_20 업로드) ----</small>
+  </li>
   <li>
     <small>테스트 코드 정리 및 코드 이해를 위한 주석 추가 (일부 코드 제외)</small>
   </li>
