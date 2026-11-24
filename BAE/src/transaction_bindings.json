@@ -1,0 +1,21 @@
+{
+  "schema": "transaction_bindings_v1",
+  "shops": [
+    {
+      "room_id": "village_market",
+      "seller_npc": "그란",
+      "seller_card_id": "scn-m-npc-smith",
+      "menu_action_id": "mk_goods",
+      "menu_card_id": "scn-m-shop-goods",
+      "source": "smith dialogue.action_ids -> mk_goods unconditional show -> shop menu; smith first_person_facts describe own stock"
+    }
+  ],
+  "payments": [
+    {
+      "npc_name": "할빅",
+      "action_id": "hh_accept",
+      "gold_cp": 5000,
+      "source": "dialogue.quest_offer.advance.gold_cp and unconditional acceptance effect"
+    }
+  ]
+}
