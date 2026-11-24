@@ -1,4 +1,4 @@
-<h3>Kim/sce_RAG_.ipynb    -- (2026_11_24 업로드)</h3>
+<h3>Kim/sce_RAG_v5.ipynb    -- (2026_11_24 업로드)</h3>
 
 <ul>
   <li>
