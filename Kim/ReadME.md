@@ -2,7 +2,7 @@
 
 <ul>
   <li>
-    <small>state에 현재 방(room)을 추가해 현재 방의 카드만 검색·서술하게 수</small>
+    <small>state에 현재 방(room)을 추가해 현재 방의 카드만 검색·서술하게 수정</small>
   </li>
   <li>
     <small>방을 골라 자유 입력으로 확인하는 테스트 셀(##14)을 추가</small>
