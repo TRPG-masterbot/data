@@ -1,3 +1,11 @@
+<h3>Kim/bell_web.zip    -- (2026_11_25 업로드)</h3>
+
+<ul>
+  <li>
+    <small>bell_web 게임 UI웹화면 zip파일 업로드</small>
+  </li>
+  <li>
+
 <h3>Kim/sce_RAG_v5.ipynb    -- (2026_11_24 업로드)</h3>
 
 <ul>
