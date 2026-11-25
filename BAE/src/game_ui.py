@@ -81,7 +81,7 @@ GAME_HELP = """### 이야기 이어가기
 
 **지도·인물·정보** · 발견한 길, 알게 된 사람, 실제로 들은 단서를 각 탭에서 확인합니다. 도입 글이 나타나는 중에는 이야기를 누르면 바로 끝까지 읽을 수 있습니다.
 
-**개발자 모드** · 보라색 영역은 이동·판정·전투를 시험하는 도구입니다. 사망 후 시험을 이어갈 때는 기록 목록을 새로고침하고 이전 기록을 선택해 복구합니다. 사용한 조작은 기록에 남습니다.
+**개발자 모드** · 모드를 켜도 일반 이야기의 선택지와 추천은 발견·진행 순서를 따릅니다. 보라색 전용 도구에서만 이동·만남·판정·전투 조건을 건너뛰어 시험합니다. 사망 후에는 기록 목록을 새로고침하고 이전 기록을 선택해 복구합니다. 사용한 조작은 기록에 남습니다.
 """
 
 
@@ -558,7 +558,18 @@ img.trpg-avatar {filter:brightness(1.3) contrast(1.05)!important;}
 #game-actions .label-wrap,#game-recommendations .label-wrap,#game-actions>.label,#game-recommendations>.label {font-size:10px!important;}
 #game-actions .gallery-item .gallery {display:block!important;white-space:pre-line!important;font-size:12px!important;line-height:1.5!important;max-width:none!important;}
 #game-recommendations .gallery-item .gallery {font-size:11px!important;}
-#game-actions .paginate {font-size:0!important;gap:5px!important;}#game-actions .paginate button {font-size:11px!important;}
+/* 페이지 이동은 게임 행동과 다릅니다. Gradio의 번호·이전·다음 버튼은
+   원래 순서와 클릭 연결을 유지하고, 행동 카드의 전체 폭 스타일만 덮어씁니다. */
+#game-actions :is(.paginate,.pagination),#game-recommendations :is(.paginate,.pagination) {display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:center!important;flex-wrap:wrap!important;gap:5px!important;width:fit-content!important;max-width:100%!important;margin:6px auto 2px!important;padding:3px 5px!important;font-size:0!important;line-height:1.4!important;color:#b6c8cf!important;border-top:1px solid #41545c!important;}
+/* 설치된 Gradio Dataset의 .paginate는 여러 페이지일 때만 생깁니다.
+   기본 Pages: 글자 대신 용도를 밝히고, 생략 기호와 실제 버튼은 계속 표시합니다. */
+#game-actions :is(.paginate,.pagination)::before,#game-recommendations :is(.paginate,.pagination)::before {content:"선택지 페이지";font-size:11px;line-height:1.4;white-space:nowrap;margin-right:3px;}
+#game-actions :is(.paginate,.pagination)>div,#game-recommendations :is(.paginate,.pagination)>div {font-size:11px!important;}
+#game-actions :is(.paginate,.pagination) button,#game-recommendations :is(.paginate,.pagination) button {display:inline-flex!important;align-items:center!important;justify-content:center!important;flex:0 0 auto!important;width:auto!important;min-width:28px!important;max-width:none!important;min-height:27px!important;height:27px!important;padding:3px 8px!important;white-space:nowrap!important;text-align:center!important;font-size:12px!important;line-height:1!important;border:1px solid #526a76!important;border-radius:5px!important;background:#192a32!important;color:#d0e1e7!important;box-sizing:border-box!important;}
+#game-actions :is(.paginate,.pagination) button:is(.current-page,.active,.selected,.current,[aria-current="page"],[aria-selected="true"]),#game-recommendations :is(.paginate,.pagination) button:is(.current-page,.active,.selected,.current,[aria-current="page"],[aria-selected="true"]) {background:#385667!important;border-color:#a1c2d0!important;color:#f1f7fa!important;font-weight:700!important;}
+#game-actions :is(.paginate,.pagination) button:hover,#game-recommendations :is(.paginate,.pagination) button:hover {background:#294653!important;border-color:#b0cad5!important;}
+#game-actions :is(.paginate,.pagination) button:focus-visible,#game-recommendations :is(.paginate,.pagination) button:focus-visible {outline:2px solid #badce9!important;outline-offset:2px!important;}
+#game-actions :is(.paginate,.pagination) button:disabled,#game-recommendations :is(.paginate,.pagination) button:disabled {opacity:.45!important;cursor:default!important;}
 #game-quest,#game-character {padding:12px!important;max-height:calc(100dvh - 300px);overflow:auto;}
 .compact-pack {max-height:calc(100dvh - 350px);overflow:auto;padding:10px;}.pack-row {display:flex;justify-content:space-between;gap:10px;padding:8px 3px;border-bottom:1px solid #30423e;font-size:12px;}.pack-row b {color:#c9b27f;}
 #game-known-places,#game-known-people {border:1px solid #364644!important;background:#1b2628!important;border-radius:9px!important;}
@@ -752,18 +763,24 @@ def build_game_demo(api):
     encounters = [(data["name"], eid) for eid, data in content.encounters.items()]
     stream_enabled = callable(api.get("output_stream"))
 
-    def recommendation_entries(game):
+    def recommendation_entries(game, primary_actions=None):
         """행동 문구는 현재 엔진 선택지를, 대화 문구는 실제 생성 결과를 사용합니다."""
         if game.pending or game.engine.s.combat or game.engine.s.ended:
             return []
         available = {choice.id: choice for choice in game.choices()}
+        primary = action_entries(game) if primary_actions is None else primary_actions
+        primary_ids = {row["id"] for row in primary}
+        shown_actions = set()
         entries = []
         for index, item in enumerate(game.suggestions[:3]):
             action_id = item.get("action_id")
             if action_id:
                 current = available.get(action_id)
-                if current is None:
+                # 같은 실행은 위쪽 행동 카드에 한 번만 둡니다. 목록을 삭제하거나
+                # 재번호하지 않아 실제 클릭은 원래 suggestion index로 연결됩니다.
+                if current is None or action_id in primary_ids or action_id in shown_actions:
                     continue
+                shown_actions.add(action_id)
                 check = game.content.choices.get(action_id, {}).get("check")
                 tag = "판정" if check else "이동" if action_id.startswith(("move:", "travel:", "meet:")) else "행동"
                 entries.append({"index": index, "kind": "action", "label": f"[{tag}] {current.label}",
@@ -773,9 +790,9 @@ def build_game_demo(api):
                                 "text": item["text"], "action_id": None})
         return entries
 
-    def recommendation_samples(game):
+    def recommendation_samples(game, primary_actions=None):
         # 대화·행동을 한 추천 영역에 두고 분류 표지로 구분합니다.
-        return [[item["label"]] for item in recommendation_entries(game)], []
+        return [[item["label"]] for item in recommendation_entries(game, primary_actions)], []
 
     def failure_display(game):
         retry = getattr(game, "retryable_dialogue_turn_id", lambda: None)()
@@ -875,7 +892,7 @@ def build_game_demo(api):
         failure_text, retry_turn = failure_display(game)
         quest = journey_panel(game, discovery)
         # 생성은 게임의 대화 처리에서 끝났습니다. 화면 갱신은 저장된 추천만 읽습니다.
-        recommendation_rows, action_recommendation_rows = recommendation_samples(game)
+        recommendation_rows, action_recommendation_rows = recommendation_samples(game, scene_actions)
         methods = game.pending_check_options()
         method_choices = [(row["label"] + f" · {row['formula']} · DC {row['dc']}"
                            + (" · 추천" if row["recommended"] else ""), row["index"]) for row in methods]
@@ -1001,18 +1018,23 @@ def build_game_demo(api):
         Thread(target=run_job, name="trpg-recommendations", daemon=True).start()
 
     def poll_recommendations(token):
-        # 진행 중인 턴을 기다리거나 덮어쓰지 않고 추천 영역만 갱신합니다.
+        # 진행 중인 턴을 기다리거나 덮어쓰지 않습니다. 늦게 도착한 행동 추천은
+        # 주 행동 목록의 앞쪽으로 함께 올려, 추천에서 숨겼는데 못 찾는 일을 막습니다.
         if not token or token in busy_sessions or not sessions.lock.acquire(blocking=False):
-            return gr.skip(), gr.skip()
+            return gr.skip(), gr.skip(), gr.skip()
         try:
             game = sessions.get(token)
-            rows, action_rows = recommendation_samples(game)
-            key = (game.revision, tuple(row[0] for row in rows), tuple(row[0] for row in action_rows))
+            primary = action_entries(game)
+            rows, action_rows = recommendation_samples(game, primary)
+            action_samples = [[row["label"] + ("\n" + row["detail"] if row["detail"] else "")] for row in primary]
+            key = (game.revision, tuple(row[0] for row in rows), tuple(row[0] for row in action_rows),
+                   tuple(row[0] for row in action_samples))
             if polled_recommendations.get(token) == key:
-                return gr.skip(), gr.skip()
+                return gr.skip(), gr.skip(), gr.skip()
             polled_recommendations[token] = key
             return (gr.update(samples=rows, visible=bool(rows)),
-                    gr.update(samples=action_rows, visible=bool(action_rows)))
+                    gr.update(samples=action_rows, visible=bool(action_rows)),
+                    gr.update(samples=action_samples, visible=bool(action_samples)))
         finally:
             sessions.lock.release()
 
@@ -1716,7 +1738,7 @@ def build_game_demo(api):
             with gr.Accordion("개발자 도구", open=False, elem_id="game-developer"):
                 developer = gr.Checkbox(label="개발자 모드 켜기", value=False)
                 with gr.Column(visible=False, elem_id="game-developer-cards") as dev_group:
-                    gr.Markdown("**개발자 전용** · 정상 플레이의 조건을 건너뛰는 시험 도구입니다. 사용 기록은 여정에 남습니다.",
+                    gr.Markdown("**개발자 전용** · 일반 이야기의 선택지·추천은 발견·진행 순서를 유지합니다. 이 보라색 전용 도구에서만 조건을 건너뛰어 시험하며, 사용 기록은 여정에 남습니다.",
                                 elem_classes="game-dev-help")
                     with gr.Row(elem_classes="game-dev-row"):
                         with gr.Group(elem_classes="game-dev-card"):
@@ -1794,7 +1816,7 @@ def build_game_demo(api):
                 scene_background_view, discovery_overview_view, discovered_places, discovered_people, discovery_actions_view,
                 people_view]
         recommendation_timer = gr.Timer(0.8)
-        recommendation_timer.tick(poll_recommendations, [token], [recommendations, action_recommendations],
+        recommendation_timer.tick(poll_recommendations, [token], [recommendations, action_recommendations, action_cards],
                                   queue=False, api_name=False, show_progress="hidden")
         # 짧은 진행 조회는 큰 대화·턴 기록을 복사하지 않으며 게임 잠금을 기다리지 않습니다.
         diagnostics_timer = gr.Timer(0.6)

@@ -16,7 +16,7 @@ from threading import Event as CancellationEvent, RLock
 import time
 
 from diagnostics_live import current_request_id, current_stage
-from campaign_flow import (CONVERSATION_MILESTONES, EARLY_AMBIENT_ACTIONS,
+from campaign_flow import (CONVERSATION_MILESTONES, EARLY_AMBIENT_ACTIONS, INTRODUCTION_SOURCES,
                            NPC_STAGE, ROOM_STAGE, pending_stage, reached)
 from game.content import Content, npc_name
 from game.dice import Dice, DICE_EXPR
@@ -24,6 +24,7 @@ from game.engine import Engine, fmt_money
 from game.events import Event, ChoiceView
 from game.model import Character, GameState, ABILITY_KO
 from game.startup import apply_starting_equipment
+from action_requirements import equipment_rows
 from state_projection import (new_ledger, before_action, record_action, restore_ledger,
     player_party, npc_party, player_snapshot, model_state,
     native_conversation_history)
@@ -293,6 +294,8 @@ class PlaySession:
                 copied["request_options"] = {key: value for key, value in original["request_options"].items()
                     if key in {"num_ctx", "num_predict", "sample", "temperature", "top_p", "top_k", "seed", "thinking", "structured_response"}
                     and isinstance(value, (str, int, float, bool, type(None)))}
+            if isinstance(original.get("validation"), dict):
+                copied["validation"] = deepcopy(original["validation"])
             # 받은 검색 결과 전체와 각 요청에서 실제로 사용한 자료를 구분합니다.
             # 자유 대화의 첫 요청은 새 검색 원문을 사용하지 않아 빈 목록입니다.
             if isinstance(original.get("text"), str):
@@ -444,7 +447,9 @@ class PlaySession:
                           if error is None or blocks is not None else [],
                 "guard": guard, "response_origin": result.get("response_origin"),
                 "meaning_review": deepcopy(result.get("meaning_review", getattr(error, "meaning_review", None))),
-                "error": {"code": type(error).__name__, "message": str(error)} if error is not None else None},
+                "error": {"code": type(error).__name__, "message": str(error),
+                          "validation": deepcopy(getattr(error, "guard_report", None)),
+                          "attempts": deepcopy(getattr(error, "validation_attempts", None))} if error is not None else None},
             "engine": {"event_id": event.get("event_id"),
                 "executed_action_ids": deepcopy(event.get("executed_action_ids", [])),
                 "outcome": deepcopy(event.get("outcome")),
@@ -601,7 +606,7 @@ class PlaySession:
         if not self._story_room_allowed("village_market"):
             return False
         card = self.content.cards[MARKET_SPACES[place]["npc_id"]]
-        return self.engine.developer or self._story_person_allowed(card)
+        return self._story_person_allowed(card)
 
     def _request_candidates(self, speaker=None):
         """현재 실제로 마주한 NPC의 원본 수락 선언만 찾습니다."""
@@ -667,7 +672,10 @@ class PlaySession:
         if identifier in existing:
             return
         record = self._request_record(definition)
-        text = "**" + record["title"] + "**\n\n" + record["purpose"] + "\n\n수락할 행동: " + record["acceptance_label"]
+        # 제안과 수락은 별도 사건입니다. 여기서는 돈·물품 효과를 실행하지 않습니다.
+        text = "**의뢰 제안 · " + record["title"] + "**\n\n" + record["purpose"]
+        if record["on_acceptance"]:
+            text += "\n\n수락 시 준비금: " + " · ".join(fmt_money(row["amount_cp"]) for row in record["on_acceptance"])
         self.messages.append({"role": "assistant", "speaker": "", "kind": "narration", "content": text,
                               "offer_event_id": record["event_id"]})
         existing[identifier] = record
@@ -678,8 +686,57 @@ class PlaySession:
         self._record_turn_diagnostics("action", "부탁의 내용을 듣는다",
             {"confirmed_offer": record, "controller_event": display_event, "npc_name": self.npc},
             {"text": text, "model_generated": False, "response_origin": "controller_offer_display"}, time.perf_counter())
+        if self.api and callable(self.api.get("generate_from_handoff")):
+            # 의뢰 카드는 생성 실패에도 남습니다. 자세한 부탁은 현재 NPC가 설명합니다.
+            self.turn_intent, self.turn_needs_information = "listen", True
+            self._generate_dialogue("부탁하시는 일과 그 이유, 준비 조건을 말씀해 주세요.", "TALK",
+                {"kind": "offer", "intent": "listen", "needs_information": True, "needs_state": False,
+                 "_turn_started": time.perf_counter()})
         self.refresh_suggestions()
         self.last_status = "부탁의 내용을 확인했습니다. 수락 여부를 선택할 수 있습니다."
+
+    def dialogue_affordances(self):
+        """대사와 화면이 같은 현재 서비스·공개 장비 조건을 참고합니다."""
+        services = []
+        for choice in self.choices():
+            definition = self.content.choices.get(choice.id, {})
+            if choice.id.startswith("buy:") or any("long_rest" in effect for effect in definition.get("effects", [])):
+                services.append({"id": choice.id, "label": choice.label,
+                                 "kind": "purchase" if choice.id.startswith("buy:") else "rest"})
+        place = MARKET_SPACES.get(self.current_place().get("id"), {})
+        if place.get("service") == "shop":
+            services.insert(0, {"id": "shop:catalogue", "label": "판매 목록과 현재 재고 확인", "kind": "catalogue"})
+        # 미발견 장소의 하강 조건을 미리 읽어 오지 않습니다. 화면과 같은 공개 범위입니다.
+        checks = [{"label": row["label"], "requirements": row["requirement"],
+                   "available": row["satisfied"], "missing": [] if row["satisfied"] else [row["requirement"]]}
+                  for row in equipment_rows(self)]
+        return {"services": services, "services_complete": True, "equipment_checks": checks}
+
+    def confirmed_information(self, scope):
+        """게임이 답을 가진 조회는 생성 문장으로 다시 추측하지 않고 표시합니다.
+
+        NPC의 성격·사건 대화는 이 경로에 들어오지 않습니다. 조회만 하므로 구매,
+        장비 사용·회복·의뢰 수락 효과를 실행하지 않으며, 미공개 조건도 읽지 않습니다.
+        """
+        conditions = self.dialogue_affordances()
+        if scope == "services":
+            rows = ["**현재 이용할 수 있는 도움 · " + self.current_place()["name"] + "**"]
+            rows += ["- " + row["label"] for row in conditions["services"]]
+            rows.append("목록에 없는 서비스는 현재 이용할 수 없습니다." if conditions["services"] else
+                        "이곳에서 지금 이용할 수 있는 판매·휴식 항목은 없습니다.")
+            return "\n\n".join(rows)
+        owned = " · ".join(self.content.items[key]["name"] + " " + str(count) + "개"
+                            for key, count in self.engine.s.inventory.items() if count > 0)
+        if scope == "requirements":
+            rows = ["**현재 확인한 장비 조건**", "현재 가방: " + (owned or "없음")]
+            rows += [row["label"] + "\n" + row["requirements"] for row in conditions["equipment_checks"]]
+            if not conditions["equipment_checks"]:
+                rows.append("아직 이 장소에서 확인한 장비 조건이 없습니다. 필요한 물건이 없다는 뜻은 아닙니다. "
+                            "이동할 곳을 살펴본 뒤 그 행동의 장비 조건을 확인하세요.")
+            return "\n\n".join(rows)
+        return ("**현재 상태**\n\n현재 장소: " + self.current_place()["name"]
+                + f"\n\nHP {self.engine.hero.hp}/{self.engine.hero.max_hp} · 소지금 " + fmt_money(self.engine.s.gold_cp)
+                + "\n\n현재 가방: " + (owned or "없음"))
 
     def _capture_developer_checkpoint(self, label):
         """최근 20개 기록에 현재 접속자의 상태·대화·판정 대기·난수 상태를 함께 보관합니다."""
@@ -810,23 +867,67 @@ class PlaySession:
                      "purpose": "preparation" if stage in {"smith_visit", "inn_visit"} else "investigation"}]
         if guidance_name:
             guidance[0]["npc_name"] = guidance_name
+        introduction_pending = bool(next_card and not self._introduced(next_card["id"])
+                                    and not self._person_present(next_card))
+        if introduction_pending:
+            title = "다음 조사와 준비 이야기"
+            summary = "현재 상대에게 다음에 누구의 도움을 받으면 좋을지 물어보세요."
         return {"stage": stage, "title": title, "summary": summary, "next_step": summary,
                 "next_npc": name, "next_action_id": action, "next_room_id": next_room,
                 "response_goal": goal, "allowed_guidance": guidance, "reference_required": False,
+                "introduction_pending": introduction_pending,
                 "first_contact_guidance": first and self.npc in {"그란", "오단", "메라"},
                 "halvik_briefed": briefed, "optional_npcs": []}
 
     def _story_room_allowed(self, room_id):
-        if self.engine.developer or self.engine.s.scene != 1 or room_id == self.engine.s.room:
+        if self.engine.s.scene != 1 or room_id == self.engine.s.room:
             return True
-        stage = self.progression_context()["stage"]
-        return reached(stage, ROOM_STAGE[room_id]) if room_id in ROOM_STAGE else True
+        minimum = ROOM_STAGE.get(room_id)
+        if minimum is None:
+            return True
+        if not reached(pending_stage(self.engine.s, self._campaign_dialogues()), minimum):
+            return False
+        target = next((cid for cid, stage in NPC_STAGE.items() if stage == minimum), None)
+        return target is None or self._introduced(target)
 
     def _story_person_allowed(self, card):
-        if self.engine.developer or self.engine.s.scene != 1:
+        if self.engine.s.scene != 1:
+            return True
+        # 명시적 개발자 이동을 한 현장은 조사할 수 있습니다. 모드를 켰다는
+        # 이유만으로 다른 장소의 인물까지 일반 선택지에 노출하지는 않습니다.
+        if self.engine.developer and self._person_present(card):
             return True
         required = NPC_STAGE.get(card.get("id"))
-        return reached(self.progression_context()["stage"], required) if required else True
+        return (reached(pending_stage(self.engine.s, self._campaign_dialogues()), required)
+                and self._introduced(card["id"])) if required else True
+
+    def _introduced(self, identifier):
+        """원본 인물을 이미 만났거나, 현재 진행에서 실제로 소개를 들었는지 읽습니다."""
+        return (identifier not in INTRODUCTION_SOURCES or identifier in self.engine.s.shown
+                or identifier in self.engine.s.vars.get("campaign_introductions", {}))
+
+    def _record_introductions(self, blocks):
+        """허용된 다음 안내를 현장 NPC의 확정 발언에서 확인해 출처를 남깁니다.
+
+        모든 이름을 훑어 새 장소를 여는 방식은 아닙니다. 내부 진행표가 허용한
+        다음 대상과 그 앞 인물만 확인합니다. 플레이어·GM·추천은 근거가 아닙니다.
+        """
+        for destination in self.progression_context()["allowed_guidance"]:
+            target = self.npc_cards().get(destination.get("npc_name"), {})
+            target_id = target.get("id")
+            source_id = INTRODUCTION_SOURCES.get(target_id)
+            source = self.content.cards.get(source_id, {})
+            if not target_id or not source or not self._person_present(source):
+                continue
+            for offset, block in enumerate(blocks):
+                if (block.get("kind") != "speech" or block.get("speaker_id") != source_id
+                        or npc_name(target) not in block.get("text", "")):
+                    continue
+                ledger = self.engine.s.vars.setdefault("campaign_introductions", {})
+                ledger.setdefault(target_id, {"source_npc_id": source_id,
+                    "target_npc_id": target_id, "room_id": destination["room_id"],
+                    "message_index": len(self.messages) - len(blocks) + offset})
+                break
 
     def _story_choice_allowed(self, identifier):
         if identifier.startswith("npc:attack:"):
@@ -848,7 +949,7 @@ class PlaySession:
                      if identifier in {self._approach(card), "talk:" + card["id"], "meet:" + card["id"]}), None)
         if card and not identifier.startswith("meet:") and not self._person_present(card):
             return False
-        if self.engine.developer or self.engine.s.scene != 1:
+        if self.engine.s.scene != 1:
             return True
         if identifier in EARLY_AMBIENT_ACTIONS:
             return False
@@ -1000,6 +1101,7 @@ class PlaySession:
                     and self._can_address(self.content.cards[block["speaker_id"]])):
                 completed.add(block["speaker_id"])
         self.engine.s.vars["campaign_dialogues"] = sorted(completed)
+        self._record_introductions(checked)
         self._update_discovery()
         return checked
 
@@ -1068,16 +1170,16 @@ class PlaySession:
 
     def _room_label(self, room_id):
         record = self._discovery()
-        if self.engine.developer or room_id in record.get("rooms", []) or room_id in self.engine.s.visited:
+        if room_id in record.get("rooms", []) or room_id in self.engine.s.visited:
             return self.content.room_name(room_id)
         return record.get("paths", {}).get(room_id, "아직 알지 못하는 곳")
 
     def _person_label(self, card):
-        return npc_name(card) if self.engine.developer or card["id"] in self._known_npcs() else "낯선 사람"
+        return npc_name(card) if card["id"] in self._known_npcs() else "낯선 사람"
 
     def _public_text(self, text):
         """화면·행동 연결에 전달할 라벨에서 미발견 고유명을 제외합니다."""
-        if self.engine.developer or not isinstance(text, str):
+        if not isinstance(text, str):
             return text
         for name, card in self.npc_cards().items():
             if card["id"] not in self._known_npcs() and name in text:
@@ -1095,7 +1197,7 @@ class PlaySession:
 
     def _presentation_text(self, text):
         """생성용 사본에서만 미발견 고유명을 가립니다. 사건·수치·원문 기록은 보존합니다."""
-        if self.engine.developer or not isinstance(text, str):
+        if not isinstance(text, str):
             return text
         public = self._public_text(text)
         if public is not None:
@@ -1133,6 +1235,10 @@ class PlaySession:
         progress = self.progression_context()
         if self.engine.s.scene != 1:
             return []
+        if progress.get("introduction_pending"):
+            # 다음 인물을 버튼으로 먼저 알려 주지 않고 현재 상대에게 물어봅니다.
+            return [{"text": "다음에는 누구에게 이야기를 들어보면 좋을까요?",
+                     "kind": "dialogue", "source": "progression"}]
         stage, name = progress["stage"], progress["next_npc"]
         available = {row.id for row in self.choices()}
         action = progress["next_action_id"]
@@ -1170,8 +1276,7 @@ class PlaySession:
         record = self._discovery()
         known = {rid for rid in set(self.engine.s.visited) | set(record.get("rooms", []))
                  | set(record.get("paths", {})) | {self.engine.s.room} if self._story_room_allowed(rid)}
-        if self.engine.developer:
-            known = set(self.content.rooms)
+        # 전체 지형을 여는 조작은 보라색 개발자 이동 도구에만 둡니다.
         paths, queue = {self.engine.s.room: []}, deque([self.engine.s.room])
         while queue:
             origin = queue.popleft()
@@ -1460,7 +1565,7 @@ class PlaySession:
 
     def _campaign_suggestion_allowed(self, option):
         """익명 주민 소문 고정 행동을 추천·저장된 버튼에서 제외합니다."""
-        if self.engine.developer or self.engine.s.scene != 1:
+        if self.engine.s.scene != 1:
             return True
         identifier = option.get("action_id", "") if isinstance(option, dict) else ""
         if identifier and not self._story_choice_allowed(identifier):
@@ -1726,6 +1831,7 @@ class PlaySession:
                     "action_subject": {"kind": "player", "name": self.engine.hero.name},
                     "engine_delta": deepcopy((self.last_result or {}).get("engine_delta")),
                    "player_snapshot": player_snapshot(self.engine), "scene_context": self.scene_context(),
+                   "dialogue_affordances": self.dialogue_affordances(),
                    "progression_options": self.progression_options(),
                     # 현재 화자의 실제 발화만 넘기며 카드 열람 기록을 대사 이력으로 바꾸지 않습니다.
                     "recent_conversation": deepcopy(self.histories.get(npc, []))}
@@ -1788,9 +1894,9 @@ class PlaySession:
                                           history=payload.get("recent_conversation"))
             return {"generated": True, "error": None, "narrative_count": len(narratives)}
         except Exception as error:
-            self._record_turn_diagnostics("action", player_input, payload, result, started, error=error,
-                                          history=payload.get("recent_conversation"))
             if self.api and isinstance(error, self.api.get("OutputStreamCancelled", ())):
+                self._record_turn_diagnostics("action", player_input, payload, result, started, error=error,
+                                              history=payload.get("recent_conversation"))
                 raise
             self.debug["행동 결과 생성"] = {"전달 자료": payload, "출력 결과": deepcopy(result),
                 "생성 오류": repr(error), "guard_report": deepcopy(getattr(error, "guard_report", None)),
@@ -1798,7 +1904,23 @@ class PlaySession:
                 "완료된 본문 모델 요청": len(getattr(error, "stage_metrics", [])),
                 "누적 행동 출력 요청": self.action_generation_calls,
                 "전체 시간(초)": round(time.perf_counter() - started, 3)}
-            self.last_status = "이야기 생성에 실패했습니다. 행동과 게임 상태는 이미 반영되었습니다."
+            # 표현 실패로 이미 끝난 판정·구매를 반복하지 않습니다. 근거 문장 전문 대신
+            # 엔진이 확정한 실행과 현재 상태만 짧게 남겨 다음 선택의 맥락을 보존합니다.
+            action_label = self.content.choices.get(choice_id, {}).get("label") or player_input.strip("*")
+            facts = ["행동 반영: " + action_label, "현재 장소: " + self._room_label(self.engine.s.room)]
+            delta = (self.last_result or {}).get("engine_delta") or {}
+            if delta.get("gold_cp_change"):
+                facts.append("현재 소지금: " + fmt_money(self.engine.s.gold_cp))
+            if delta.get("hp_change"):
+                facts.append(f"현재 HP: {self.engine.hero.hp}/{self.engine.hero.max_hp}")
+            self.messages.append({"role": "assistant", "speaker": "", "kind": "narration",
+                "content": "\n\n".join(facts), "response_origin": "confirmed_action_summary"})
+            fallback_result = {**(result or {}), "text": "\n\n".join(facts),
+                               "response_origin": "confirmed_action_summary"}
+            self._record_turn_diagnostics("action", player_input, payload, fallback_result, started, error=error,
+                blocks=[{"kind": "narration", "speaker_id": None, "text": "\n\n".join(facts)}],
+                history=payload.get("recent_conversation"))
+            self.last_status = "행동 결과를 요약해 표시했습니다. 자세한 이야기 생성은 실패했지만 다음 선택을 할 수 있습니다."
             return {"generated": False, "error": repr(error), "narrative_count": len(narratives)}
 
     def rag_state(self):
@@ -2199,7 +2321,11 @@ class PlaySession:
         self.engine.require_developer()
         if self.engine.s.combat:
             raise ValueError("전투를 끝낸 뒤 이동하세요. 즉시 승리 버튼을 사용할 수 있습니다.")
-        self.pending = None
+        self.cancel_recommendations()
+        self.pending = self.engine.s.pending = None
+        self.engine.pending_roll_override = None
+        if room == "village_market" and npc in self.npc_cards():
+            self.engine.s.vars["presentation_place"] = self._person_place(self.npc_cards()[npc])
         self.engine.s.vars["developer_used"] = True
         self._record([Event("developer", "개발자 바로 이동을 사용했습니다.")] + self.engine._enter(room))
         if npc:
@@ -2216,7 +2342,9 @@ class PlaySession:
         if encounter not in self.content.encounters:
             raise ValueError("알 수 없는 조우입니다.")
         self.engine.s.vars["developer_used"] = True
-        self.pending = None
+        self.cancel_recommendations()
+        self.pending = self.engine.s.pending = None
+        self.engine.pending_roll_override = None
         self._record([Event("developer", "개발자 시험 전투를 시작합니다.")] + self.engine.start_combat(encounter))
         self.refresh_suggestions()
         self.last_status = "시험 전투입니다. 정상 플레이의 조우 조건을 건너뛰었습니다."
@@ -2266,7 +2394,8 @@ class PlaySession:
             return None  # 찾아가는 선언은 발견된 경로를 실제로 이동한 뒤 만납니다.
         for name, card in self.npc_cards().items():
             target = re.escape(name) + r"(?:\s*(?:님|씨))?"
-            address = (target + r"\s*(?:에게|한테|께|와|과)\s*(?:직접\s*)?"
+            # 조사 뒤의 목적어도 허용합니다. '할빅에 대해'라는 화제와 직접 수신자는 구분합니다.
+            address = (target + r"\s*(?:에게|한테|께|와|과)\s*(?:[^.!?。！？\n]{0,120}?)"
                        r"(?:말을\s*(?:건|걸|겁)|대화(?:한|하겠|할)|이야기(?:한|하겠|할)|질문(?:한|하겠|할)|물어(?:본|보겠|볼)|묻(?:는|겠|습니다))")
             vocative = r"^" + target + r"\s*[,，!！:]"
             if re.search(address, text) or re.search(vocative, text):
@@ -2301,11 +2430,15 @@ class PlaySession:
                   for row in native_conversation_history(self.histories.get(self.npc, []))[-2:]]
         system = (
             '플레이어의 현재 발언을 분류한다. JSON으로 반환한다: '
-            '{"kind":"social|listen|accept|decline|farewell|knowledge|state|action|look|rule|clarify","state_topics":[]}. '
+            '{"kind":"social|listen|accept|decline|farewell|knowledge|state|action|look|rule|clarify","needs_information":false,"fact_scope":"world|state|services|requirements|conversation","state_topics":[]}. '
             'social=일상 대화, decline=거절, farewell=작별, knowledge=설정·사건 질문, '
             'listen=현재 상대의 이야기나 부탁 설명을 들어보겠다는 응답, accept=현재 상대가 부탁한 일을 맡겠다는 약속, '
             'state=실제 상태 확인, action=행동 실행, '
             'look=주변 관찰, rule=규칙 질문, clarify=대상 확인. '
+            'needs_information은 말투나 의도와 별개로 설정·사건·이유·조건의 사실이 필요한지다. 설명을 요청하면 listen이어도 true다. '
+            'fact_scope는 답에 필요한 사실의 종류다: services=현재 가게·시설의 제공 서비스/판매/가격, '
+            'requirements=행동에 필요한 장비·자원·능력치의 선행조건, state=자기 소지품/수치, '
+            'world=인물·사건·장소·의뢰 내용·조사 대상·위험 설명, conversation=사실 확인 없는 잡담. '
             'state_topics는 직접 확인하는 엔진 상태 범위다: money, items, hp, rest, resources. 해당 없으면 빈 배열이다.\n'
             + '현재 NPC: ' + self.npc + '\n이전 대화: ' + json.dumps(recent, ensure_ascii=False))
         if not self.api:
@@ -2349,6 +2482,8 @@ class PlaySession:
         if question_form and kind in {"action", "look"} and input_kind != "action":
             kind = "knowledge"
         selected, intent, info, state = routes[kind]
+        # '듣겠다'와 '사실 설명이 필요하다'는 동시에 성립할 수 있습니다.
+        info = info or classified.get("needs_information") is True or _information_question(message)
         mapper_raw, mapper_seconds, mapper_calls = "", 0.0, 0
         navigation_resolution = None
         blocked_action = None
@@ -2471,6 +2606,9 @@ class PlaySession:
             "classified_kind": classified_kind, "question_form": question_form,
             "information_request_override": information_override,
             "intent": intent, "needs_information": info, "needs_state": state, "state_topics": state_topics,
+            "needs_services": classified.get("fact_scope") == "services" or classified.get("needs_services") is True,
+            "fact_scope": classified.get("fact_scope") if classified.get("fact_scope") in
+                {"world", "state", "services", "requirements", "conversation"} else "world",
             "blocked_action": blocked_action,
             "navigation_resolution": navigation_resolution,
             "input_uncertain": uncertain,
@@ -2592,6 +2730,13 @@ class PlaySession:
             text = ("현재 가능한 행동과 연결되지 않아 실행하지 않았습니다. 지도나 가능한 행동에서 대상을 골라 주세요."
                     if route_debug.get("kind") in {"action", "look"} else
                     "어느 쪽으로 움직일까요?" if context["exits"] else "어떤 대상을 살피거나 말을 걸까요?")
+            # 이미 실패한 같은 판정은 대상 불명 입력과 구별해 이유를 설명합니다.
+            request_text = re.sub(r"[\W_]+", "", message).casefold()
+            attempted = next((row for row in self.content.choices.values()
+                if row["room"] == self.engine.s.room
+                and re.sub(r"[\W_]+", "", row["label"]).casefold() == request_text), None)
+            if attempted and (attempted["id"], self.engine.hero.id) in self.engine.s.failed:
+                text = "이미 실패한 판정입니다. 같은 조건에서 다시 굴릴 수 없습니다. 다른 방법을 선택해 주세요."
             if options:
                 text += "\n\n" + " · ".join(options)
             self.messages.append({"role": "assistant", "content": text})
@@ -2719,6 +2864,8 @@ class PlaySession:
         payload.update(response_contract="game_turn", recommendations_in_router=True, state_snapshot_complete=True,
             suggestion_count=1, turn_intent=self.turn_intent, needs_state=self.turn_needs_state,
             needs_information=bool(self.turn_needs_information))
+        payload["needs_services"] = route_debug.get("needs_services") is True
+        payload["fact_scope"] = route_debug.get("fact_scope", "world")
         payload["available_actions"] = [{"id": choice.id, "label": choice.label, "check": choice.check_text}
             for choice in self.choices() if not choice.id.startswith("npc:attack:")]
         payload["scene_context"] = self.scene_context()
@@ -2737,14 +2884,24 @@ class PlaySession:
             for row in self.choices() if self.content.choices.get(row.id, {}).get("check")]
         payload["response_mode"] = "rule_explanation" if route == "RULE" else "npc_dialogue" if speaker else "scene_dialogue"
         payload["interaction_context"] = self.interaction_context(speaker)
+        payload["dialogue_affordances"] = self.dialogue_affordances()
         payload["input_uncertain"] = bool(route_debug.get("input_uncertain"))
         payload["state_topics"] = list(route_debug.get("state_topics", []))
         payload["reply_format"] = "natural_text"
         # 팀 입력·RAG의 원문, 순위와 출처는 그대로 전달합니다.
         memory_hits = 0
         context_seconds = time.perf_counter() - started
-        result = self.api["generate_from_handoff"](payload, history=model_history, npc_name=speaker,
-                                                  engine_result=self.last_result)
+        scope = payload.get("fact_scope")
+        if scope in {"services", "requirements", "state"}:
+            # 가능 여부·가격·수량·실행 조건은 엔진의 조회 결과입니다. 모델의
+            # 그럴듯한 약속으로 바뀌지 않게 기존 시스템 정보 표시 경로를 사용합니다.
+            result = {"text": self.confirmed_information(scope), "response_format": "engine_state",
+                "response_origin": "confirmed_current_information", "model_generated": False,
+                "generation_seconds": 0.0, "input_tokens": 0, "output_tokens": 0,
+                "engine_state_topics": [scope], "stage_metrics": [], "payload": payload}
+        else:
+            result = self.api["generate_from_handoff"](payload, history=model_history, npc_name=speaker,
+                                                      engine_result=self.last_result)
         captured["result"] = result
         current_stage("validation", detail="생성 결과와 확정 상태 표시 확인",
                       response_origin=result.get("response_origin"))
@@ -2797,7 +2954,7 @@ class PlaySession:
         calls = {"generate_answer": route_debug.get("model_calls", 0), "get_handoff": 1,
                  "scope_classification": route_debug.get("classification_calls", 0),
                  "action_mapper": route_debug.get("mapper_calls", 0),
-                 "add_memory_context": 0, "generate_from_handoff": 1,
+                 "add_memory_context": 0, "generate_from_handoff": int(not engine_only),
                  "body_model_generation": len(result.get("stage_metrics", [])), "generate_followup_question": int(followup["called"])}
         self.debug = {"의도 해석": route_debug, "입력·검색": payload,
             "생성": json.loads(self.api["generation_for_display"](result)), "후속 질문": followup,
@@ -2830,12 +2987,21 @@ class PlaySession:
                 "scene_focus_explicit": self.scene_focus_explicit,
                 "histories": deepcopy(self.histories), "messages": deepcopy(self.messages),
                 "audit": self.audit[-200:], "revision": self.revision,
+                "pending_choice": deepcopy(self.pending) if self.pending and self.pending.get("type") == "choice" else None,
                 "turn_records": deepcopy(self.turn_records), "diagnostics_meta": deepcopy(self.diagnostics_meta),
                 "transaction_ledger": deepcopy(self.transaction_ledger)}
 
     def restore_data(self, data):
         if not isinstance(data, dict) or data.get("schema") != "trpg_game_save_1":
             raise ValueError("지원하지 않는 저장 파일입니다.")
+        # 값을 모두 확인한 뒤에만 현재 게임을 바꿉니다. int 변환을 나중에 하면
+        # 손상된 revision을 거절하면서 위치·대화만 이미 적용되는 문제가 생깁니다.
+        revision = data.get("revision", 0)
+        if type(revision) is not int or revision < 0:
+            raise ValueError("저장된 변경 번호가 올바르지 않습니다.")
+        saved_npc, saved_audit = data.get("npc", ""), data.get("audit", [])
+        if not isinstance(saved_npc, str) or not isinstance(saved_audit, list):
+            raise ValueError("대화 상대·활동 기록이 올바르지 않습니다.")
         scene_focus = data.get("scene_focus_explicit", False)
         if type(scene_focus) is not bool:
             raise ValueError("대화 대상 저장 형식이 올바르지 않습니다.")
@@ -2849,6 +3015,17 @@ class PlaySession:
                 or any(not isinstance(value, str) or value not in CONVERSATION_MILESTONES
                        for value in campaign_dialogues)):
             raise ValueError("초반 대화 진행 기록이 올바르지 않습니다.")
+        introductions = raw.get("vars", {}).get("campaign_introductions", {})
+        if not isinstance(introductions, dict):
+            raise ValueError("소개 완료 기록이 올바르지 않습니다.")
+        for target_id, receipt in introductions.items():
+            if (target_id not in INTRODUCTION_SOURCES or not isinstance(receipt, dict)
+                    or receipt.get("target_npc_id") != target_id
+                    or receipt.get("source_npc_id") != INTRODUCTION_SOURCES[target_id]
+                    or receipt.get("room_id") not in {*self.content.rooms, *MARKET_SPACES}
+                    or type(receipt.get("message_index")) is not int
+                    or receipt["message_index"] < 0):
+                raise ValueError("소개 완료 항목이 올바르지 않습니다.")
         conversations = raw.get("vars", {}).get("campaign_dialogues", [])
         if (not isinstance(conversations, list) or any(not isinstance(value, str)
                 or value not in CONVERSATION_MILESTONES for value in conversations)):
@@ -2922,26 +3099,45 @@ class PlaySession:
             json.dumps({"records": turn_records, "meta": diagnostics_meta}, allow_nan=False)
         except (TypeError, ValueError, RecursionError) as error:
             raise ValueError("진단 기록은 유효한 JSON 값이어야 합니다.") from error
+        # 굴리기 전의 선택과 방법도 후보 엔진에서 검사합니다. 현재 엔진은 건드리지 않습니다.
+        pending = deepcopy(data.get("pending_choice"))
+        if pending is not None:
+            if not isinstance(pending, dict) or pending.get("type") != "choice":
+                raise ValueError("저장된 행동 확인 형식이 올바르지 않습니다.")
+            candidate = GameEngine(content=self.content, char_id=char["id"])
+            candidate.s, candidate.dice = state, dice
+            choice = self.content.choices.get(pending.get("choice"), {})
+            views = {row.id: row for row in candidate.available_choices()}
+            view = views.get(pending.get("choice"))
+            actor_id = pending.get("actor_id", state.party[0].id)
+            if view is None or actor_id not in view.actors or state.pending or state.combat:
+                raise ValueError("저장된 판정을 현재 상태에서 실행할 수 없습니다.")
+            if choice.get("check"):
+                candidate.selected_check(state.member(actor_id), choice["check"], pending.get("method_index"))
+            pending["revision"] = revision + 1
+        self.cancel_recommendations()
         self.engine.s, self.engine.dice = state, dice
         self.transaction_ledger = transaction_ledger
         self.engine.next_success = False
         self.engine.pending_roll_override = None
         self.engine.developer = False
-        self.pending = None
+        self.pending = pending
         self._failed_dialogue = None
-        self.histories = histories
+        self.histories = deepcopy(histories)
         if self.api:
             self.close()
             self.memory_session = self.api["create_memory_session"]()
         self.messages = deepcopy(data.get("messages", []))
         self.turn_records, self.diagnostics_meta = turn_records, diagnostics_meta
-        self.audit = data.get("audit", [])[-200:]
-        self.revision = int(data.get("revision", 0)) + 1
-        self.npc = data.get("npc", "")
+        self.audit = deepcopy(saved_audit[-200:])
+        self.revision = revision + 1
+        self.npc = saved_npc
         self.scene_focus_explicit = scene_focus and not self.npc
         if self.npc not in self.npc_cards() or self.npc_cards()[self.npc]["room"] != state.room:
             self.npc = ""
         self._record([Event("status", "저장한 게임을 불러왔습니다. 개발자 성공 보장은 해제했습니다.")])
+        if self.pending:
+            self.pending["revision"] = self.revision
         self.refresh_suggestions()
         self.last_status = "저장 파일 불러오기 완료."
 

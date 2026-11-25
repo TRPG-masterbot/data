@@ -11,6 +11,11 @@ ROOM_STAGE = {"village_square": "sera_request", "halvik_house": "halvik_visit",
 CONVERSATION_MILESTONES = {"scn-m-npc-smith", "scn-m-npc-innkeeper", "scn-s1-npc-mera"}
 EARLY_AMBIENT_ACTIONS = {"sq_rumors"}
 
+# 다음 방문 후보와 실제로 소개를 들은 사실은 별개입니다.
+# 순서표에 있는 바로 앞 인물의 발언만 다음 인물 소개의 출처로 인정합니다.
+_people_in_order = tuple(NPC_STAGE)
+INTRODUCTION_SOURCES = dict(zip(_people_in_order[1:], _people_in_order[:-1]))
+
 
 def reached(stage, minimum):
     return FLOW_STAGES.index(stage) >= FLOW_STAGES.index(minimum)

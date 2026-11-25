@@ -146,6 +146,14 @@ def action_entries(game):
         title = choice.label.removeprefix("이동: ") if choice.id.startswith("move:") else choice.label
         rows.append({"id": choice.id, "label": f"[{tag}] {title}",
                      "detail": choice.check_text or ("선택 후 주사위를 굴립니다" if game._needs_roll(choice.id) else "")})
+    # 추천된 실행 행동도 같은 카드로 보여 줍니다. 원본 선택지나 추천 목록은
+    # 바꾸지 않고 표시 순서만 앞당겨, 다음 페이지에 숨은 추천이 생기지 않게 합니다.
+    suggested = getattr(game, "suggestions", []) or []
+    priority = {}
+    for item in suggested[:3]:
+        if isinstance(item, dict) and isinstance(item.get("action_id"), str):
+            priority.setdefault(item["action_id"], len(priority))
+    rows.sort(key=lambda row: priority.get(row["id"], len(priority)))
     return rows
 
 

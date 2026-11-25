@@ -3,7 +3,7 @@ from html import escape
 from pathlib import Path
 from urllib.parse import quote
 
-from response_guard import contains_han
+from response_guard import contains_han, _language_issue
 
 
 PORTRAIT_DIR = Path(__file__).resolve().parent / "assets" / "portraits"
@@ -196,7 +196,8 @@ def _render_body(body, mark_actions=False):
 def _public_speaker_and_body(message):
     """예전 저장 이력도 같은 언어 정책으로 표시하며 사용자 원문은 유지합니다."""
     speaker, body = _speaker_and_body(message, _body_text(message.get("content", "")))
-    if message["role"] == "assistant" and (contains_han(body) or contains_han(speaker)):
+    language = _language_issue(body)
+    if message["role"] == "assistant" and ((language and language["severity"] == "error") or contains_han(speaker)):
         return "게임 마스터", "한국어로 완성되지 않은 이전 응답은 표시하지 않았습니다."
     return speaker, body
 

@@ -1,6 +1,6 @@
 {
-  "schema": "bae_runtime_files.v18",
-  "version": "output-v18-20261125",
+  "schema": "bae_runtime_files.v20",
+  "version": "output-v20-20261125",
   "files": {
     "action_requirements.py": {
       "bytes": 5711,
@@ -35,12 +35,12 @@
       "sha256": "437e0af009a6f6d6b38e316b7d029039c9fb261e6297749edc557ba1628211ac"
     },
     "campaign_flow.py": {
-      "bytes": 1856,
-      "sha256": "08affd5ea6775ffb459eb918e8af92f784ad7a9a3dc772f58d14ec69a99e343b"
+      "bytes": 2155,
+      "sha256": "d11bdefc84d477d237021d409c67c82a721ccea5afde7e855dcb11e19495b95d"
     },
     "diagnostic_export.py": {
-      "bytes": 22051,
-      "sha256": "20af140b5e58a46ddfe68314b70db65130b27ce7f88e044bbc65e83eeb25238e"
+      "bytes": 27567,
+      "sha256": "dbe293b754309cb53abd3ca8233f4643bb3cbf61607af802555bb4f7f3ab2a30"
     },
     "diagnostics_live.py": {
       "bytes": 11747,
@@ -123,48 +123,48 @@
       "sha256": "3aaf17d55a32cba24f09e2ecca2b63e443e8a5b6b318b6bcd147bbba73801634"
     },
     "game_ui.py": {
-      "bytes": 136431,
-      "sha256": "8361477b6d558f1f98a4d425fe36f4f6010860179d349427bc6d6769c92cf23d"
+      "bytes": 140333,
+      "sha256": "45d7e08699bc5cb9c1526b2d240599676cea4c4df882469796e5d843834340e4"
     },
     "gameplay.py": {
-      "bytes": 195936,
-      "sha256": "4ef273ca6a2b25e6149aba8d1a46200eac7cb230dec43679f7fcc3f6d1df04cc"
+      "bytes": 211048,
+      "sha256": "0702e51fc9ddea5868fc3fb7a39340ab75a3e69c6a59968a334254c76dd74123"
     },
     "ollama_backend.py": {
       "bytes": 10769,
       "sha256": "fa32c60bf176a723c9e34727b9675af141dc51c638186af69a6c5a5f88d2dd0e"
     },
     "output_helpers/context_helpers.py": {
-      "bytes": 27017,
-      "sha256": "79707c9fabe61002c02a7a095487f2a92fa2166afcc94b1f331ec3075d048b88"
+      "bytes": 32653,
+      "sha256": "bee7f6c77a0a4e6d3760eeadeb82d6ed6224f67e5456d8908935fce6d152e482"
     },
     "output_helpers/execution_control.py": {
       "bytes": 2570,
       "sha256": "39424d8dbc33282d5c7f4ea78ea81dd71a45fd4dd96f377a4f7c100cc2af5c9b"
     },
     "output_helpers/generation_helpers.py": {
-      "bytes": 38544,
-      "sha256": "62c37e5b6bde53f47a8d2f7e87351a470e5c7a43f6400e1046ee0deb7cedaccb"
+      "bytes": 33195,
+      "sha256": "71e2c289ea438d03da6f90f73dc7dc0afa769842cb4eca2691120cbf52904a84"
     },
     "output_helpers/gui_bridge.py": {
-      "bytes": 9698,
-      "sha256": "bffa2046060988e042379f2dc90978d3c993794f6b5d5072958c5ef67053c187"
+      "bytes": 9719,
+      "sha256": "ad79b36ff9780defd4655dcbba7395a3ea262623f1aaf73a22164d33f04b44e8"
     },
     "output_helpers/input_helpers.py": {
       "bytes": 5208,
       "sha256": "4ac14961aad0fb9b00f198bf262f7eb43e06a8f45da8192df26cf58fbfdf5560"
     },
     "output_helpers/response_validation.py": {
-      "bytes": 14034,
-      "sha256": "e19af7faad43b7d780b2cc0d0bc273198e4057ca63935a86ae72d304c6b625a5"
+      "bytes": 17048,
+      "sha256": "82b9fb483881d661e802f7b8922e5264981d63be52330ff10a2c40a16421167e"
     },
     "play_view.py": {
-      "bytes": 16079,
-      "sha256": "4a1ee1b105447313e990430aecbcd7fab806ae97ba091c8493a298a87b57a451"
+      "bytes": 16626,
+      "sha256": "3c037ad057e19d776c73bd1b2a3b1198a3c20ce2b080f46ed880ec63ccc1f93b"
     },
     "portrait_view.py": {
-      "bytes": 11997,
-      "sha256": "b4ba0204498c0d6d97ed94cf9fcbc75aac5950eece6086dc54e047179a79ff41"
+      "bytes": 12080,
+      "sha256": "678402817a37fa6b2afd1680a1a811655f8dccf5ef4ba128a36a4c890f7309d2"
     },
     "runtime_setup.py": {
       "bytes": 9062,

@@ -30,6 +30,7 @@ def _bae_connect_and_open(namespace):
  '_contains_response_json',
  'allowed_speaker_map',
  'contains_han',
+ '_language_issue',
  'first_han_index',
  'inspect_response',
  'json',

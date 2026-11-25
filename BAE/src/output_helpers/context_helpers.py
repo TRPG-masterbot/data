@@ -158,6 +158,8 @@ def _utterance_task(payload):
     if phase == "action_result" and any(isinstance(row, dict) and row.get("confirmed") is True for row in handovers):
         # 인물이나 아이템 이름을 조건으로 검사하지 않고 실제 전달 영수증에 반응합니다.
         task += " 이번에는 전달이 완료됐으므로 건넨 물건과 자료에 명시된 용도를 먼저 설명한다."
+    if requirements["mode"] == "npc_dialogue":
+        task += " 현재 NPC가 1~3문장으로 직접 말한다. 진행 안내는 제공된 allowed_guidance의 다음 대상만 짧게 연결한다."
     target = requirements["target_speaker_id"]
     speaker_sources = []
     for index, row in enumerate((payload.get("retrieval") or {}).get("scenario_results", []), 1):
@@ -236,9 +238,13 @@ def _current_interaction_contract(payload):
             public = _npc_view(_engine_data({key: deepcopy(offer[key]) for key in (
                 "event_id", "request_id", "source_choice_id", "issuer", "status", "purpose",
                 "acceptance_label", "on_acceptance") if key in offer}))
+            # 수락 문구의 '찾는다'를 의뢰인이 할 일로 옮기지 않도록 역할을 명시합니다.
+            # 이는 공개 의뢰의 수락 주체이며, 수락·지급 완료를 새로 선언하지 않습니다.
+            public["acceptor"] = {"kind": "player"}
+            public["performer"] = {"kind": "player"}
     return {"state_authority": "engine", "dialogue_commits_effects": False,
             "public_request": public,
-            "scope": "공개한 조건과 실제 실행은 구분한다. 등록되지 않은 보상·물품·행동을 새로 확정하지 않는다."}
+            "scope": "공개한 조건과 실제 실행은 구분한다. 확인된 보상·물품·행동 범위에서 제안하고 완료는 엔진 결과를 따른다."}
 
 
 def _revealed_public_references(payload, engine_result):
@@ -296,14 +302,78 @@ def _with_action_speaker_scope(payload, engine_result):
     return result
 
 
+def _npc_turn_roles(payload, contract):
+    """누가 말하고 누가 의뢰를 맡는지, 공개된 역할과 목적만 묶습니다.
+
+    가족 관계 등 인물 설정을 대화에서 다시 추출하지 않습니다. 발언 주인과
+    의뢰 수행자는 매번 같은 엔진 역할을 사용하고 설정은 팀 근거로 확인합니다.
+    """
+    roles = {"speaker": deepcopy(contract["speaker"]), "listener": {"kind": "player"},
+             "user_utterance_owner": "listener", "assistant_utterance_owner": "speaker"}
+    public = _current_interaction_contract(payload)["public_request"]
+    if public is not None:
+        roles["request"] = {key: deepcopy(public[key]) for key in
+            ("request_id", "issuer", "acceptor", "performer", "status", "purpose") if key in public}
+    return _npc_view(roles)
+
+
+def _npc_current_scene(payload):
+    """현재 장소의 공개 관찰·실제 인물만 복사하고 다른 장소는 보충하지 않습니다."""
+    scene = payload.get("scene_context") or {}
+    if not isinstance(scene, dict):
+        raise ValueError("현재 장면 자료는 dict여야 합니다.")
+    result = {key: deepcopy(scene[key]) for key in ("room_id", "room_name", "observation") if key in scene}
+    result["people"] = [{key: deepcopy(person[key]) for key in ("card_id", "name", "label", "presence")
+                         if key in person} for person in scene.get("people", []) if isinstance(person, dict)]
+    return _npc_view(_engine_data(result))
+
+
+def _npc_dialogue_affordances(payload):
+    """연결부가 확인한 현재 서비스와 공개 장비 조건을 대사에도 전달합니다.
+
+    목록이 없는 호출은 미제공으로 남깁니다. 빈 목록과 미제공은 다릅니다.
+    전체 시나리오의 숨은 행동·보상·조건은 여기서 찾아 채우지 않습니다.
+    """
+    value = payload.get("dialogue_affordances")
+    if value is None:
+        return None
+    if not isinstance(value, dict):
+        raise ValueError("현재 이용 조건은 dict여야 합니다.")
+    result = {"services_complete": value.get("services_complete") is True}
+    fields = {"services": ("id", "label", "kind", "price_cp", "item_id", "item_name", "quantity"),
+              "equipment_checks": ("id", "label", "requirements", "missing", "available")}
+    for key, allowed in fields.items():
+        rows = value.get(key)
+        if rows is None:
+            continue
+        if not isinstance(rows, list):
+            raise ValueError("현재 이용 조건의 " + key + "는 목록이어야 합니다.")
+        result[key] = [{field: _engine_data(row[field]) for field in allowed if field in row}
+                       for row in rows if isinstance(row, dict)]
+    return _npc_view(result)
+
+
 def _current_public_state(payload):
-    """현재 장소·소지품·수치만 읽습니다. 완료한 옛 행동 목록은 재사용하지 않습니다."""
+    """현재 장소·소지품·수치만 읽습니다. 과거 행동 목록과 내부 조건은 제외합니다."""
     state = payload.get("engine_snapshot") or payload.get("model_state") or payload.get("game_state") or {}
     result = {key: deepcopy(state[key]) for key in
-        ("scene", "current_room", "inventory", "gold_cp", "money") if key in state}
+        ("scene", "current_room", "inventory", "gold_cp", "money", "현재 장소", "플레이어 소지금") if key in state}
     hero = state.get("hero") if isinstance(state.get("hero"), dict) else {}
     result["player"] = {key: deepcopy(hero[key]) for key in
         ("name", "hp", "max_hp", "hp_max", "resources", "conditions") if key in hero}
+    snapshot = payload.get("player_snapshot")
+    if isinstance(snapshot, dict):
+        # 이름·ID·전체 행동 이력을 빼고 지금 가방의 표시 이름·수량만 유지합니다.
+        for key in ("hp", "max_hp", "gold_cp", "resources", "conditions"):
+            if key in snapshot:
+                result["player"][key] = deepcopy(snapshot[key])
+        if isinstance(snapshot.get("inventory"), list):
+            result.pop("inventory", None)
+            result["player"]["inventory"] = [{key: deepcopy(row[key]) for key in
+                ("item_id", "item_name", "quantity") if key in row}
+                for row in snapshot["inventory"] if isinstance(row, dict)]
+    elif "플레이어가 보유한 소지품" in state:
+        result["player"]["inventory"] = deepcopy(state["플레이어가 보유한 소지품"])
     return _engine_data(result)
 
 
@@ -317,14 +387,19 @@ def _current_action_context(payload, engine_result):
     if confirmed.get("confirmed") is not True:
         raise ValueError("행동 서술에는 확정된 실행 결과가 필요합니다.")
     events = []
-    for row in confirmed.get("public_event_records", []):
+    records = confirmed.get("public_event_records")
+    has_records = isinstance(records, list)
+    for row in records if has_records else []:
         if (not isinstance(row, dict) or row.get("kind") == "card"
+                or row.get("kind") in {"say", "interaction", "scene_cue"}
                 or row.get("knowledge_only") is True
                 or (row.get("data") or {}).get("knowledge_only") is True):
             continue
         events.append({"kind": row.get("kind"), "text": row.get("text", ""),
             "data": _engine_data(row.get("data") or {})})
-    if not events:
+    # say에는 생략된 주어와 옛 진행 안내가 섞일 수 있습니다. 확정된 숫자 변화와
+    # 전달 영수증을 사용하고, 뺀 say 문장을 public_events에서 되살리지 않습니다.
+    if not events and not has_records:
         events = [{"kind": "public", "text": text} for text in confirmed.get("public_events", [])
                   if isinstance(text, str) and text.strip()]
     scene = payload.get("scene_context") or {}
@@ -345,19 +420,32 @@ def _build_current_action_messages(payload, speaker, contract, engine_result):
     """실행 결과의 새 설명을 만들며 과거 장면이나 무관한 검색 카드를 반복하지 않습니다."""
     sources, coverage = _revealed_public_references(payload, engine_result)
     data = {"이번 실행과 현재 관찰": _current_action_context(payload, engine_result),
-        "이번에 공개한 지식": [{"source_id": row["label"], "text": row["text"]} for row in sources],
-        "공개 지식의 전달 범위": coverage,
         "읽기 전용 상호작용 계약": _current_interaction_contract(payload),
         "이번 화자": deepcopy(contract["speaker"]),
         "허용된 화자": _speaker_context(payload)["allowed_speakers"]}
     if contract["mode"] == "npc_dialogue":
+        data["이번에 공개한 지식"] = [{"source_id": row["label"], "text": row["text"]} for row in sources]
+        data["공개 지식의 전달 범위"] = coverage
         data["말투"] = _speech_style(contract["speaker"]["speaker_id"])
+        data["이번 대화의 역할"] = _npc_turn_roles(payload, contract)
+        affordances = _npc_dialogue_affordances(payload)
+        if affordances is not None:
+            data["현재 장소의 이용 조건"] = affordances
         data["진행 안내"] = _story_context(payload)
         data = _npc_view(data)
-    instruction = ("현재 실행 결과와 관찰을 짧은 장면으로 표현한다. 새로 공개한 지식이 있으면 이번 질문이나 열람 목적에 맞춰 "
-        "그 의미를 설명하되 새 실행으로 바꾸지 않는다. 물품·금액·위치·판정의 변화는 이번 확정 결과에 있는 것만 쓰고, "
-        "자료가 없는 부분은 채우지 않는다. 자료를 인용하는 보고서 대신 현재 장면 자체를 쓴다.")
-    return [{"role": "system", "content": OUTPUT_SYSTEM},
+    else:
+        # GM의 현재 사건은 엔진이 실행한 변화와 실제 관찰로만 설명합니다.
+        # 공개 카드의 소문·조건·관찰 방법은 알아낸 정보로 보존되지만, 이동하거나
+        # 뚜껑을 열었다는 이유로 실제 발생한 사건이나 추가 조사로 승격하지 않습니다.
+        # 원본 검색 결과와 coverage는 결과 진단에서 별도로 그대로 확인합니다.
+        sources = []
+    instruction = ("이번 실행과 현재 관찰에 있는 행동·변화·눈앞의 요소만 짧은 장면으로 표현한다. "
+        "새 조사나 이동, 시각·날씨·소문을 덧붙이지 않고 현재 사건 자체를 서술한다.")
+    if contract["mode"] == "npc_dialogue":
+        instruction = ("현재 NPC가 확정된 이번 결과에 자기 입장에서 1~3문장으로 직접 답한다. "
+            "의뢰 수행자는 역할 자료를 따르고, 전달이 완료됐다면 실제 보낸 쪽·받은 쪽·물건과 용도를 유지한다. "
+            "진행 안내는 제공된 allowed_guidance와 연결한다.")
+    return [{"role": "system", "content": NPC_CONVERSATION_SYSTEM if contract["mode"] == "npc_dialogue" else OUTPUT_SYSTEM},
         {"role": "system", "content": "이번에 확정된 실행 자료입니다.\n" + _json_text(data)},
         {"role": "system", "content": instruction + "\n" + _json_text(contract)},
         {"role": "user", "content": payload["player_input"]}], sources

@@ -11,6 +11,40 @@ import json
 import re
 _HAN = re.compile(r"[\u3007\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\U00020000-\U0003347f]")
 _PROTOCOL = re.compile(r"<\|(?:im_start|im_end|endoftext|start_header_id|end_header_id)\|>|</?think>")
+_HANGUL = re.compile(r"[\uac00-\ud7a3]")
+
+
+class ResponseValidationError(ValueError):
+    """잘못된 블록의 위치와 이유를 진단에 남기는 형식 오류입니다."""
+    def __init__(self, report):
+        self.guard_report = report
+        super().__init__(report["hard_issues"][0]["message"])
+
+
+def _rejected_response(code, message, **detail):
+    issue = {"code": code, "message": message, "severity": "error", **detail}
+    return ResponseValidationError({"status": "rejected", "issues": [issue],
+        "warnings": [], "hard_issues": [issue], "scope": "format_and_language_only"})
+
+
+def _language_issue(text):
+    """대부분 한국어인 긴 본문의 소수 한자는 경고로 구별합니다.
+
+    글자를 임의로 지우거나 바꾸지 않습니다. 이 검사는 문장 의미나 사실을
+    보장하지 않으며, 한자가 중심인 응답은 이전처럼 표시를 막습니다.
+    """
+    decoded = unescape(text)
+    matches = list(_HAN.finditer(decoded))
+    if not matches:
+        return None
+    hangul = len(_HANGUL.findall(decoded))
+    isolated = len(matches) <= 2 and hangul >= 20 and len(matches) / (hangul + len(matches)) <= .03
+    return {"code": "language_mixed_characters" if isolated else "language",
+        "message": "한국어 본문에 소수의 한자가 섞여 있습니다." if isolated else "본문을 한국어로 작성해야 합니다.",
+        "severity": "warning" if isolated else "error", "hangul_count": hangul,
+        "han_count": len(matches), "characters": [{"character": match.group(),
+            "codepoint": "U+%04X" % ord(match.group()), "decoded_text_offset": match.start()}
+            for match in matches]}
 
 
 def first_han_index(text):
@@ -20,7 +54,7 @@ def first_han_index(text):
 
 
 def contains_han(text):
-    """한국어 출력 정책을 화면에서도 같은 기준으로 확인합니다."""
+    """한자 포함 여부만 확인합니다. 표시 차단 여부는 inspect_response로 정합니다."""
     return isinstance(text, str) and first_han_index(unescape(text)) >= 0
 
 
@@ -51,8 +85,10 @@ def inspect_response(text, payload=None, npc_name=None, engine_result=None):
     issues = []
     if not isinstance(text, str) or not text.strip():
         issues.append({"code": "empty_response", "message": "표시할 본문이 비어 있습니다."})
-    elif contains_han(text):
-        issues.append({"code": "language", "message": "본문을 한국어로 작성해야 합니다."})
+    else:
+        language = _language_issue(text)
+        if language:
+            issues.append(language)
     if isinstance(text, str) and _PROTOCOL.search(text):
         issues.append({"code": "protocol", "message": "내부 모델 형식을 본문에 표시할 수 없습니다."})
     if isinstance(text, str) and _contains_response_json(text):
@@ -66,8 +102,11 @@ def inspect_response(text, payload=None, npc_name=None, engine_result=None):
             structured = None
         if isinstance(structured, (dict, list)):
             issues.append({"code": "format", "message": "JSON 대신 대화 본문이 필요합니다."})
-    return {"status": "passed" if not issues else "rejected", "issues": issues,
-            "hard_issues": list(issues), "scope": "format_and_language_only"}
+    warnings = [issue for issue in issues if issue.get("severity") == "warning"]
+    hard = [issue for issue in issues if issue.get("severity") != "warning"]
+    return {"status": "rejected" if hard else "passed_with_warnings" if warnings else "passed",
+            "issues": issues, "warnings": warnings, "hard_issues": hard,
+            "scope": "format_and_language_only"}
 
 
 def allowed_speaker_map(payload):
@@ -182,7 +221,7 @@ def response_blocks_schema(payload):
 def validate_response_block(row, allowed, payload=None, engine_result=None):
     """화자 식별과 표현 형식만 검사하며 대사 의미의 사실 여부는 판정하지 않습니다."""
     if not isinstance(row, dict) or set(row) != {"kind", "speaker_id", "text"}:
-        raise ValueError("각 블록에는 kind·speaker_id·text만 필요합니다.")
+        raise _rejected_response("block_fields", "각 블록에는 kind·speaker_id·text만 필요합니다.")
     kind, identifier, text = row["kind"], row["speaker_id"], row["text"]
     requirements = response_requirements(payload)
     # payload가 있는 실제 생성에서는 엔진의 허용 목록을 다시 기준으로 씁니다.
@@ -190,25 +229,25 @@ def validate_response_block(row, allowed, payload=None, engine_result=None):
     names = allowed_speaker_map(payload) if payload is not None else allowed
     if kind == "narration":
         if not requirements["narration_allowed"]:
-            raise ValueError("이번 NPC 대화는 장면 반복 없이 현재 인물의 직접 대사로 답해야 합니다.")
+            raise _rejected_response("turn_contract", "이번 NPC 대화는 장면 반복 없이 현재 인물의 직접 대사로 답해야 합니다.")
         if identifier not in (None, ""):
-            raise ValueError("GM 서술의 speaker_id는 null이어야 합니다.")
+            raise _rejected_response("speaker_id", "GM 서술의 speaker_id는 null이어야 합니다.")
         identifier, name = None, ""
     elif kind == "speech":
         if requirements["mode"] == "rule_explanation":
-            raise ValueError("규칙 설명은 NPC 대사가 아닌 GM 서술로 작성해야 합니다.")
+            raise _rejected_response("turn_contract", "규칙 설명은 NPC 대사가 아닌 GM 서술로 작성해야 합니다.")
         if not isinstance(identifier, str) or identifier not in names:
-            raise ValueError("대사의 화자는 현재 허용된 speaker_id여야 합니다.")
+            raise _rejected_response("speaker_id", "대사의 화자는 현재 허용된 speaker_id여야 합니다.")
         if requirements["mode"] == "npc_dialogue" and identifier != requirements["target_speaker_id"]:
-            raise ValueError("이번 대화는 현재 NPC의 허용 ID로 답해야 합니다.")
+            raise _rejected_response("speaker_id", "이번 대화는 현재 NPC의 허용 ID로 답해야 합니다.")
         name = names[identifier]
     else:
-        raise ValueError("블록 종류는 narration 또는 speech여야 합니다.")
+        raise _rejected_response("block_kind", "블록 종류는 narration 또는 speech여야 합니다.")
     report = inspect_response(text, payload, name, engine_result)
     if report["hard_issues"]:
         # 교정 요청에는 실제 실패 이유를 전달합니다. 잘못된 초안 문장 자체를
         # 다시 입력할 필요 없이 언어 또는 응답 구조의 문제를 구분할 수 있습니다.
-        raise ValueError(report["hard_issues"][0]["message"])
+        raise ResponseValidationError(report)
     return {"kind": kind, "speaker_id": identifier, "speaker": name, "text": text.strip()}
 
 
@@ -217,24 +256,40 @@ def unique_json_keys(pairs):
     value = {}
     for key, item in pairs:
         if key in value:
-            raise ValueError("JSON 필드가 중복됩니다: " + key)
+            raise _rejected_response("duplicate_json_key", "JSON 필드가 중복됩니다: " + key)
         value[key] = item
     return value
 
 
 def parse_response_blocks(raw, payload, engine_result=None):
     """모델의 블록 JSON을 확인하고 표시 이름은 엔진 목록에서만 연결합니다."""
-    value = json.loads(raw, object_pairs_hook=unique_json_keys)
+    try:
+        value = json.loads(raw, object_pairs_hook=unique_json_keys)
+    except ResponseValidationError:
+        raise
+    except (ValueError, TypeError) as error:
+        raise _rejected_response("invalid_json", "완성된 응답 JSON을 읽을 수 없습니다.") from error
     if not isinstance(value, dict) or set(value) != {"blocks"}:
-        raise ValueError("최상위 JSON에는 blocks만 필요합니다.")
+        raise _rejected_response("response_fields", "최상위 JSON에는 blocks만 필요합니다.")
     rows = value["blocks"]
     requirements = response_requirements(payload)
     if not isinstance(rows, list) or not 1 <= len(rows) <= requirements["max_blocks"]:
-        raise ValueError(f"이번 응답은 1~{requirements['max_blocks']}개의 허용된 블록이어야 합니다.")
+        raise _rejected_response("block_count", f"이번 응답은 1~{requirements['max_blocks']}개의 허용된 블록이어야 합니다.")
     allowed = allowed_speaker_map(payload)
-    blocks = [validate_response_block(row, allowed, payload, engine_result) for row in rows]
+    blocks, warnings = [], []
+    for index, row in enumerate(rows):
+        try:
+            blocks.append(validate_response_block(row, allowed, payload, engine_result))
+        except ResponseValidationError as error:
+            # 블록 오류만 기록합니다. 오류 본문을 설정 사실로 다시 주입하지 않습니다.
+            for issue in error.guard_report["issues"]:
+                issue["block_index"] = index
+            raise
+        for issue in inspect_response(row["text"])["warnings"]:
+            warnings.append({**issue, "block_index": index})
     if requirements["speech_required"] and not any(row["kind"] == "speech"
             and row["speaker_id"] == requirements["target_speaker_id"] for row in blocks):
-        raise ValueError("이번 응답에는 현재 NPC의 직접 대사가 필요합니다.")
-    return blocks, {"status": "passed", "issues": [], "hard_issues": [],
+        raise _rejected_response("missing_current_speech", "이번 응답에는 현재 NPC의 직접 대사가 필요합니다.")
+    return blocks, {"status": "passed_with_warnings" if warnings else "passed",
+                    "issues": warnings, "warnings": warnings, "hard_issues": [],
                     "scope": "block_structure_speaker_id_language_and_turn_contract"}

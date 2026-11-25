@@ -2,8 +2,8 @@
 
 """현재 확인된 사실을 근거로 대사와 장면을 생성합니다.
 
-첫 인사는 원본과 연결된 준비 문구를 유지하며, 수락·전달은 실제 역할과 영수증으로
-공통 확인 문구를 구성합니다. 일반 대화와 새 지식 설명은 모델이 생성합니다. 실행 사실은 엔진에서 읽고
+첫 인사는 원본과 연결된 준비 문구를 유지하며, 수락·전달은 실제 역할과 영수증을
+근거로 모델이 자연스럽게 표현합니다. 일반 대화와 새 지식 설명도 모델이 생성합니다. 실행 사실은 엔진에서 읽고
 이전 생성 문장을 현재 사건의 근거로 재사용하지 않습니다. 형식 검사와 실제
 생성 비용은 기록하며, 그 검사를 사실 정확도 점수로 표시하지 않습니다.
 """
@@ -19,16 +19,35 @@ def generate_answer(messages, max_new_tokens=MAX_NEW_TOKENS, sample=True):
     return run_generation(messages, max_new_tokens=max_new_tokens, sample=sample)["text"]
 
 
-OUTPUT_POLICY = {"first_contact": "source_bound_prepared_or_guided_generation", "confirmed_acceptance_and_handover": "deterministic_role_receipt_acknowledgement",
-                 "critical_transaction_model_requests": 0, "ordinary_dialogue": "model_generated",
+OUTPUT_POLICY = {"first_contact": "source_bound_prepared", "confirmed_acceptance_and_handover": "model_grounded_confirmed_receipt",
+                 "critical_transaction_model_requests": 1, "ordinary_dialogue": "model_generated",
                  "free_dialogue": "explicit_information_route_then_optional_reference", "automatic_semantic_judge": False,
                  "ordinary_npc_max_model_requests": 2}
 
 
 class OutputFormatError(ValueError):
-    def __init__(self, message, raw_response=""):
+    def __init__(self, message, raw_response="", guard_report=None):
         super().__init__(message)
         self.raw_response = raw_response
+        self.guard_report = deepcopy(guard_report)
+
+
+def _validation_failure_report(error):
+    """예외가 된 검사 이유도 정상 응답의 검사 기록과 같은 모양으로 보관합니다."""
+    report = getattr(error, "guard_report", None)
+    if isinstance(report, dict):
+        return deepcopy(report)
+    issue = {"code": "invalid_response", "message": str(error), "severity": "error"}
+    return {"status": "rejected", "issues": [issue], "warnings": [], "hard_issues": [issue],
+            "scope": "format_and_language_only"}
+
+
+def _format_repair_instruction(error):
+    """오류 본문을 설정으로 재사용하지 않고, 블록 위치와 검사 이유만 알립니다."""
+    report = _validation_failure_report(error)
+    return ("같은 자료와 허용 화자 목록을 유지하고 아래 형식 문제만 한 번 고쳐 주세요. "
+            "더 짧고 완결된 blocks JSON을 반환하고 text는 한국어 본문으로 작성하세요. "
+            "검사 결과: " + _json_text(report["hard_issues"]))
 
 
 def _blocks_text(blocks):
@@ -114,6 +133,9 @@ def _attach_output_error(error, requested, messages, payload, stages, trace):
     error.reply_to = payload["player_input"]
     error.retrieval_query = (payload.get("input_trace") or {}).get("retrieval_query", payload["player_input"])
     error.stage_metrics = deepcopy(stages)
+    error.validation_attempts = [deepcopy(row["validation"]) for row in stages if "validation" in row]
+    if not isinstance(getattr(error, "guard_report", None), dict) and error.validation_attempts:
+        error.guard_report = deepcopy(error.validation_attempts[-1])
     error.active_stage = trace.get("active_stage")
     error.backend = diagnostics_metadata()
     if stages:
@@ -132,11 +154,17 @@ def _generate_public(messages, payload, speaker, *, engine_result=None, cancel_e
     from response_guard import parse_response_blocks, response_blocks_schema
     response_format = response_blocks_schema(payload)
     def inspect(generated):
-        limit = generated.get("generation_limit", MAX_NEW_TOKENS)
-        if (generated.get("done_reason") == "length"
-                or generated.get("output_tokens", 0) >= limit):
-            raise ValueError("응답이 생성 한도에 도달했습니다.")
-        return parse_response_blocks(generated["text"], payload, engine_result)
+        try:
+            limit = generated.get("generation_limit", MAX_NEW_TOKENS)
+            if (generated.get("done_reason") == "length"
+                    or generated.get("output_tokens", 0) >= limit):
+                raise ValueError("응답이 생성 한도에 도달했습니다.")
+            blocks, report = parse_response_blocks(generated["text"], payload, engine_result)
+        except (ValueError, TypeError) as error:
+            generated["validation"] = _validation_failure_report(error)
+            raise
+        generated["validation"] = deepcopy(report)
+        return blocks, report
     stream = None
     stages = []
     requested = messages
@@ -158,8 +186,7 @@ def _generate_public(messages, payload, speaker, *, engine_result=None, cancel_e
             # 실패한 초안은 진단에만 남기고, 실제 질문을 마지막 발언으로 유지합니다.
             repair = deepcopy(messages)
             repair.insert(len(repair) - 1, {"role": "system",
-                "content": "같은 자료와 허용 화자 목록을 유지하고 언어·블록 형식만 한 번 고쳐 주세요. "
-                    + str(error) + " 더 짧고 완결된 blocks JSON만 반환하세요. text는 한국어 본문입니다."})
+                "content": _format_repair_instruction(error)})
             requested = repair
             generated = run_generation(requested, sample=False,
                 on_text=None, cancel_event=cancel_event,
@@ -171,7 +198,8 @@ def _generate_public(messages, payload, speaker, *, engine_result=None, cancel_e
             try:
                 blocks, report = inspect(generated)
             except (ValueError, TypeError) as error:
-                failure = OutputFormatError("응답의 블록·화자·언어 형식을 확인할 수 없습니다.", generated["text"])
+                failure = OutputFormatError("응답의 블록·화자·언어 형식을 확인할 수 없습니다.",
+                    generated["text"], _validation_failure_report(error))
                 failure.request_options = deepcopy(generated.get("request_options"))
                 raise failure from error
         stream.finish(blocks)
@@ -182,6 +210,9 @@ def _generate_public(messages, payload, speaker, *, engine_result=None, cancel_e
         error.reply_to = payload["player_input"]
         error.retrieval_query = (payload.get("input_trace") or {}).get("retrieval_query", payload["player_input"])
         error.stage_metrics = deepcopy(stages)
+        error.validation_attempts = [deepcopy(row["validation"]) for row in stages if "validation" in row]
+        if not isinstance(getattr(error, "guard_report", None), dict) and error.validation_attempts:
+            error.guard_report = deepcopy(error.validation_attempts[-1])
         error.backend = diagnostics_metadata()
         if stages:
             error.backend["options"] = deepcopy(stages[0].get("request_options"))
@@ -215,7 +246,9 @@ def _result(blocks, generated, first, stages, report, messages, payload, speaker
         "meaning_review": deepcopy(trace.get("meaning_review")),
         "raw_text": generated["text"], "draft_text": first["text"], "response_guard": report,
         "source_ids": [], "selected_source_ids": [], "sources": [], "provided_sources": sources,
-        "warnings": [], "status": "format_valid", "seconds": seconds, "generation_seconds": seconds,
+        "warnings": [issue["message"] for issue in report.get("warnings", [])],
+        "status": "format_valid_with_warnings" if report.get("warnings") else "format_valid",
+        "seconds": seconds, "generation_seconds": seconds,
         "input_tokens": sum(row["input_tokens"] for row in stages),
         "output_tokens": sum(row["output_tokens"] for row in stages), "stage_metrics": stages,
         "messages": deepcopy(requested), "context_messages": deepcopy(messages),
@@ -264,26 +297,34 @@ def _npc_conversation_schema(payload):
 
 
 def _inspect_npc_conversation(generated, payload, engine_result=None, *, envelope=True):
-    """한 요청의 완결 여부와 형식만 확인합니다. 답의 의미 정확도 판정이 아닙니다."""
+    """완결·블록·화자 검사 결과를 요청별로 남깁니다. 사실 정확도 검사는 아닙니다."""
     from response_guard import parse_response_blocks, unique_json_keys
-    limit = generated.get("generation_limit", MAX_NEW_TOKENS)
-    if generated.get("done_reason") == "length" or generated.get("output_tokens", 0) >= limit:
-        raise ValueError("응답이 생성 한도에 도달했습니다.")
-    raw = generated["text"]
-    if not envelope:
-        blocks, report = parse_response_blocks(raw, payload, engine_result)
-        return "reply", blocks, report
-    value = json.loads(raw, object_pairs_hook=unique_json_keys)
-    if not isinstance(value, dict) or set(value) != {"mode", "blocks"}:
-        raise ValueError("대화 응답은 mode와 blocks로 구성해야 합니다.")
-    mode = value["mode"]
-    if mode == "consult_reference":
-        if value["blocks"] != []:
-            raise ValueError("원문 확인 요청에는 공개할 대사를 넣지 않습니다.")
-        return mode, None, None
-    if mode != "reply":
-        raise ValueError("대화 응답 mode를 확인할 수 없습니다.")
-    blocks, report = parse_response_blocks(_json_text({"blocks": value["blocks"]}), payload, engine_result)
+    try:
+        limit = generated.get("generation_limit", MAX_NEW_TOKENS)
+        if generated.get("done_reason") == "length" or generated.get("output_tokens", 0) >= limit:
+            raise ValueError("응답이 생성 한도에 도달했습니다.")
+        raw = generated["text"]
+        if not envelope:
+            blocks, report = parse_response_blocks(raw, payload, engine_result)
+            generated["validation"] = deepcopy(report)
+            return "reply", blocks, report
+        value = json.loads(raw, object_pairs_hook=unique_json_keys)
+        if not isinstance(value, dict) or set(value) != {"mode", "blocks"}:
+            raise ValueError("대화 응답은 mode와 blocks로 구성해야 합니다.")
+        mode = value["mode"]
+        if mode == "consult_reference":
+            if value["blocks"] != []:
+                raise ValueError("원문 확인 요청에는 공개할 대사를 넣지 않습니다.")
+            generated["validation"] = {"status": "passed", "issues": [], "warnings": [],
+                "hard_issues": [], "scope": "reference_request_envelope_only", "body_generated": False}
+            return mode, None, None
+        if mode != "reply":
+            raise ValueError("대화 응답 mode를 확인할 수 없습니다.")
+        blocks, report = parse_response_blocks(_json_text({"blocks": value["blocks"]}), payload, engine_result)
+    except (ValueError, TypeError) as error:
+        generated["validation"] = _validation_failure_report(error)
+        raise
+    generated["validation"] = deepcopy(report)
     return mode, blocks, report
 
 
@@ -358,13 +399,14 @@ def _generate_npc_conversation(payload, history, speaker, *, engine_result=None,
                 include_reference=True, engine_result=engine_result)
             repair = deepcopy(messages)
             repair.insert(len(repair) - 1, {"role": "system", "content":
-                "현재 질문에 한국어 대사로 짧게 답하고, 허용된 화자의 완결된 blocks JSON만 반환하세요."})
+                _format_repair_instruction(error)})
             trace["response_origin"] = "model_conversation_format_repair"
             generated = request("format_repair", repair, sources, response_blocks_schema(payload), repair=True)
             try:
                 _, blocks, report = _inspect_npc_conversation(generated, payload, engine_result, envelope=False)
             except (ValueError, TypeError) as error:
-                raise OutputFormatError("응답의 블록·화자·언어 형식을 확인할 수 없습니다.", generated["text"]) from error
+                raise OutputFormatError("응답의 블록·화자·언어 형식을 확인할 수 없습니다.",
+                    generated["text"], _validation_failure_report(error)) from error
         else:
             if mode == "consult_reference":
                 messages, sources = build_npc_conversation_messages(payload, history, speaker,
@@ -374,7 +416,8 @@ def _generate_npc_conversation(payload, history, speaker, *, engine_result=None,
                 try:
                     _, blocks, report = _inspect_npc_conversation(generated, payload, engine_result, envelope=False)
                 except (ValueError, TypeError) as error:
-                    raise OutputFormatError("원문 확인 뒤 응답의 블록·화자·언어 형식을 확인할 수 없습니다.", generated["text"]) from error
+                    raise OutputFormatError("원문 확인 뒤 응답의 블록·화자·언어 형식을 확인할 수 없습니다.",
+                        generated["text"], _validation_failure_report(error)) from error
         generated["_output_review"] = trace
         stream.finish(blocks)
         result = _result(blocks, generated, first, stages, report, first_messages,
@@ -396,11 +439,10 @@ def _generate_npc_conversation(payload, history, speaker, *, engine_result=None,
 
 
 def _prepared_opening(payload, speaker, sources, *, engine_result=None, cancel_event=None, force_prepared=False):
-    """첫 인사의 원본 연결을 확인하고 준비 문구 또는 안내 생성으로 분기합니다.
+    """첫 인사의 원본 연결을 확인하고 짧은 준비 문구를 표시합니다.
 
-    카드 ID·공개 이름·원문 해시가 모두 일치해야 합니다. 현재 역할과 다음 장소의
-    안내가 필요한 첫 만남은 검증 후 생성 경로에 맡깁니다. 준비 문구를 그대로
-    표시한 경우에는 모델 요청·토큰·생성 시간이 0입니다.
+    카드 ID·공개 이름·원문 해시가 모두 일치해야 합니다. 다음 안내는 화면의
+    현재 목표와 선택지로 연결하고, 첫 인사에는 모델 요청·토큰·생성 시간이 0입니다.
     """
     from response_guard import parse_response_blocks
     task = _utterance_task(payload)
@@ -426,9 +468,8 @@ def _prepared_opening(payload, speaker, sources, *, engine_result=None, cancel_e
         if (prepared.get("name") != name or prepared.get("source_text_sha256") != source_hash
                 or not isinstance(prepared.get("text"), str) or not prepared["text"].strip()):
             raise OutputFormatError("현재 NPC의 카드 원문이 준비된 첫 인사와 다릅니다. 첫 인사를 확인해 주세요.")
-        # 안내가 필요한 첫 만남도 같은 원문 ID·해시를 확인한 후 생성 경로를 사용합니다.
-        if _story_context(payload).get("first_contact_guidance") is True and not force_prepared:
-            return None
+        # 첫 인사는 모두 원본에 연결해 준비한 문구를 씁니다. 다음 대상 안내는
+        # 현재 해금 상태의 UI가 맡고, 이후 실제 질문과 수락 반응은 모델이 생성합니다.
         stream = _ResponseStream(payload, engine_result)
         raw = _json_text({"blocks": [{"kind": "speech", "speaker_id": identifier, "text": prepared["text"]}]})
         try:
@@ -454,128 +495,14 @@ def _prepared_opening(payload, speaker, sources, *, engine_result=None, cancel_e
 
 
 def _prepared_confirmed_interaction(payload, speaker, sources, *, engine_result=None):
-    """확정된 수락·전달은 역할과 영수증으로 구성하며 모델을 호출하지 않습니다.
+    """수락·전달도 확정 영수증을 근거로 자연스러운 대사를 생성합니다.
 
-    대사의 자연스러움은 일반 생성 경로가 담당합니다. 의뢰를 맡은 사람과 물품의
-    주고받는 방향은 여기서 공통 문구로 보존합니다. 카드 문장을 복사하거나
-    영수증의 제삼자 설명을 NPC 대사로 재작성하지 않으며 게임 효과도 실행하지 않습니다.
+    엔진은 호출 전에 이미 한 번 실행됐습니다. 여기서 수량 중심의 공통 대사를
+    대신 만들지 않고 기존 생성 경로로 넘깁니다. 다음 생성은 확인된 전달 방향,
+    공개된 물품 목적과 현재 상대의 말투만 표현하며 게임 효과를 실행하지 않습니다.
+    두 진입점에서 쓰는 연결 함수 이름은 유지합니다.
     """
-    from response_guard import parse_response_blocks
-    task = _utterance_task(payload)
-    event = engine_result if isinstance(engine_result, dict) else {}
-    executed = event.get("executed_action_ids") or []
-    if (task["mode"] != "npc_dialogue" or task["phase"] != "action_result"
-            or task["input_kind"] != "action" or event.get("confirmed") is not True or not executed):
-        return None
-    name = task["speaker"]["name"]
-    identifier = task["speaker"]["speaker_id"]
-    requests = [row for row in (payload.get("interaction_context") or {}).get("requests", [])
-        if row.get("request_id") in executed and row.get("status") == "accepted"
-        and (row.get("request_issuer") or {}).get("kind") == "npc"
-        and (row.get("request_issuer") or {}).get("name") == name
-        and (row.get("request_acceptor") or {}).get("kind") == "player"]
-    public = _current_interaction_contract(payload)["public_request"]
-    accepted_ids = list(dict.fromkeys(row["request_id"] for row in requests))
-    if (isinstance(public, dict) and public.get("status") == "accepted"
-            and public.get("source_choice_id") in executed
-            and (public.get("issuer") or {}).get("name") == name):
-        if public["source_choice_id"] not in accepted_ids:
-            accepted_ids.append(public["source_choice_id"])
-    accepted = payload.get("action_kind") == "accept" and bool(accepted_ids)
-
-    transfers, seen = [], set()
-    for row in event.get("item_handovers", []):
-        if not isinstance(row, dict) or row.get("confirmed") is not True or row.get("action_id") not in executed:
-            continue
-        origin, destination = row.get("from") or {}, row.get("to") or {}
-        outgoing = origin.get("kind") == "npc" and origin.get("name") == name and destination.get("kind") == "player"
-        incoming = destination.get("kind") == "npc" and destination.get("name") == name and origin.get("kind") == "player"
-        if not outgoing and not incoming:
-            continue  # 다른 당사자의 영수증을 현재 NPC의 전달로 바꾸지 않습니다.
-        quantity = row.get("quantity")
-        if type(quantity) is not int or quantity <= 0:
-            raise ValueError("확정된 전달 영수증에는 양의 정수 수량이 필요합니다.")
-        item_name = row.get("item_name")
-        item_name = item_name.strip() if isinstance(item_name, str) and item_name.strip() else "물품"
-        direction = "npc_to_player" if outgoing else "player_to_npc"
-        key = (row["action_id"], row.get("item_id"), direction, quantity)
-        if key in seen:
-            continue
-        seen.add(key)
-        transfers.append({"action_id": row["action_id"], "item_id": row.get("item_id"),
-                          "item_name": item_name, "quantity": quantity, "direction": direction})
-    if not accepted and not transfers:
-        return None
-
-    register = OPENING_LINES.get(identifier, {}).get("speech_register", "polite")
-    styles = {
-        "polite": {"accept": "부탁을 맡아 주셔서 고마워요.", "give": "{item} {quantity}개를 건네드렸어요.",
-                   "receive": "{item} {quantity}개를 잘 받았어요.", "money": "약속한 {amount}를 건네드렸어요.",
-                   "preparation": "준비에 관해서는 {person}에게 물어보셔도 좋아요.",
-                   "investigation": "괜찮으시면 {person}에게도 이야기를 물어보세요."},
-        "hao": {"accept": "부탁을 맡아 주어 고맙소.", "give": "{item} {quantity}개를 건네드렸소.",
-                "receive": "{item} {quantity}개를 잘 받았소.", "money": "약속한 {amount}를 건네드렸소.",
-                "preparation": "준비에 관해서는 {person}에게 물어보아도 좋겠소.",
-                "investigation": "괜찮다면 {person}에게도 이야기를 물어보시오."},
-        "elder": {"accept": "부탁을 맡아 주어 고맙구려.", "give": "{item} {quantity}개를 건네드렸구려.",
-                  "receive": "{item} {quantity}개를 잘 받았구려.", "money": "약속한 {amount}를 건네드렸구려.",
-                  "preparation": "준비에 관해서는 {person}에게 물어보아도 좋겠구려.",
-                  "investigation": "괜찮다면 {person}에게도 이야기를 물어보구려."}}
-    style = styles.get(register, styles["polite"])
-    lines = [style["accept"]] if accepted else []
-    for row in transfers:
-        key = "give" if row["direction"] == "npc_to_player" else "receive"
-        lines.append(style[key].format(item=row["item_name"], quantity=row["quantity"]))
-
-    # 공개한 조건과 실제 증가액이 같은 경우에만 금액을 확인합니다. 새 보상은 만들지 않습니다.
-    money_cp = 0
-    if accepted and isinstance(public, dict) and public.get("source_choice_id") in accepted_ids:
-        grants = public.get("on_acceptance") or []
-        expected = sum(row["amount_cp"] for row in grants if isinstance(row, dict)
-                       and row.get("kind") == "money" and type(row.get("amount_cp")) is int and row["amount_cp"] > 0)
-        change = (event.get("engine_delta") or {}).get("gold_cp_change")
-        if expected > 0 and type(change) is int and change == expected:
-            money_cp = change
-            parts, remaining = [], money_cp
-            for unit, size in (("gp", 100), ("sp", 10), ("cp", 1)):
-                quantity, remaining = divmod(remaining, size)
-                if quantity:
-                    parts.append(str(quantity) + " " + unit)
-            lines.append(style["money"].format(amount=" ".join(parts)))
-
-    # 목적 문장을 기계적으로 NPC 대사로 바꾸지 않고, 허용된 다음 인물만 조건부로 권합니다.
-    guidance = None
-    for row in _story_context(payload).get("allowed_guidance", []):
-        if not isinstance(row, dict) or row.get("purpose") not in {"preparation", "investigation"}:
-            continue
-        person = row.get("npc_name")
-        if isinstance(person, str) and person.strip() and person != name:
-            guidance = {"npc_name": person, "purpose": row["purpose"]}
-            lines.append(style[row["purpose"]].format(person=person))
-            break
-
-    _raise_if_cancelled(None)
-    raw = _json_text({"blocks": [{"kind": "speech", "speaker_id": identifier, "text": " ".join(lines)}]})
-    blocks, report = parse_response_blocks(raw, payload, event)
-    trace = {"response_origin": "confirmed_role_receipt", "draft_messages": [], "review_messages": [],
-        "meaning_review": {"verdict": "not_performed", "issues": [], "model_assisted": False,
-            "scope": "typed_roles_receipts_and_format_only"},
-        "prepared_context": {"event_id": event.get("event_id"), "executed_action_ids": deepcopy(executed),
-            "accepted_request_ids": accepted_ids if accepted else [], "accepted_by": "player" if accepted else None,
-            "rendered_handovers": transfers, "rendered_money_cp": money_cp, "guidance": guidance,
-            "speech_register": register, "receipt_explanation_rendered": False}, "request_trace": []}
-    empty = {"text": "", "seconds": 0, "input_tokens": 0, "output_tokens": 0,
-             "generation_limit": 0, "request_options": None, "_output_review": trace}
-    stream = _ResponseStream(payload, event)
-    try:
-        _raise_if_cancelled(None)
-        stream.finish(blocks)
-    except BaseException:
-        stream.fail()
-        raise
-    result = _result(blocks, empty, empty, [], report, [], payload, name, [], [])
-    result["history_messages"] = 0
-    return result
+    return None
 
 
 def _generate_main_result(messages, payload, speaker, sources, engine_result=None):

@@ -3,6 +3,9 @@
 저장된 입력을 변경하지 않습니다. 환경·인증 정보, 내부 상태 사전, GM 자료나
 임의의 중첩 객체는 내보내지 않고 정해진 공개 필드만 사용합니다.
 """
+from collections import Counter
+from copy import deepcopy
+import hashlib
 import json
 import math
 import re
@@ -11,6 +14,7 @@ from diagnostics_live import public_diagnostics
 
 
 SCHEMA = "output_diagnostics.v1"
+COPY_SCHEMA = "output_diagnostics.v2"
 _TIMINGS = ("search_seconds", "handoff_seconds", "input_seconds", "input_pipeline_seconds", "classification_seconds",
             "scope_seconds", "mapper_seconds", "modelgen_seconds", "generation_seconds",
             "repair_seconds", "meaning_review_seconds", "followup_seconds", "followup_wall_seconds", "total_seconds")
@@ -117,6 +121,10 @@ def _error(value):
     if isinstance(value, dict):
         result = _scalars(value, ("type", "code", "stage", "message"))
         result["message"] = message(result["message"])
+        # 본문 거절의 실제 이유를 일반 오류 이름과 함께 남깁니다.
+        for key in ("validation", "guard_report", "validation_attempts", "cause", "attempts"):
+            if isinstance(value.get(key), (dict, list, str)):
+                result[key] = public_diagnostics(value[key])
         return result
     return None
 
@@ -127,9 +135,9 @@ def _guard(value):
     result = _scalars(value, ("status", "scope", "valid", "repaired", "reason"))
     for key in ("issues", "hard_issues"):
         rows = value.get(key)
-        result[key] = [_scalars(row, ("code", "message", "stage")) for row in rows if isinstance(row, dict)] if isinstance(rows, list) else None
+        result[key] = [public_diagnostics(row) for row in rows if isinstance(row, dict)] if isinstance(rows, list) else None
     for key in ("errors", "warnings"):
-        result[key] = [_scalars(row, ("code", "message", "stage")) if isinstance(row, dict) else row
+        result[key] = [public_diagnostics(row) if isinstance(row, dict) else row
                        for row in value[key] if isinstance(row, (dict, str))] if isinstance(value.get(key), list) else None
     return result
 
@@ -189,6 +197,8 @@ def _stages(value):
         copied["text"] = _string(row.get("text"))
         copied["messages"] = _request_messages(row.get("messages"))
         copied["provided_sources"] = _sources({"sources_public": row.get("provided_sources")})
+        if isinstance(row.get("validation"), dict):
+            copied["validation"] = public_diagnostics(row["validation"])
         rows.append(copied)
     return rows
 
@@ -359,8 +369,8 @@ def build_plain_conversation(messages):
     return "\n\n".join(lines)
 
 
-def build_copy_report(messages, turn_records, session_meta, current_state, live_diagnostics=None):
-    """공개 대화 전체와 턴 진단을 담은 단일 복사 문자열을 반환합니다."""
+def build_diagnostics_document(messages, turn_records, session_meta, current_state, live_diagnostics=None):
+    """기존 v1 공개 필드만 구성합니다. 복사 형식이 바뀌어도 원문 계약은 유지합니다."""
     records = turn_records if isinstance(turn_records, list) else []
     document = {"schema": SCHEMA, "session": _meta(session_meta),
         "conversation": _conversation(messages), "turns": [_turn(row) for row in records if isinstance(row, dict)],
@@ -370,49 +380,152 @@ def build_copy_report(messages, turn_records, session_meta, current_state, live_
         document["live_requests"] = public_diagnostics(_rows(live.get("live_requests")))
         document["diagnostic_snapshot"] = public_diagnostics({key: live.get(key) for key in
             ("cache_available", "captured_at", "cache_age_seconds", "snapshot_at", "dropped_count", "history_count")})
-    lines = ["TRPG 전체 대화·테스트 기록", "형식: " + SCHEMA,
-             "미측정 값은 null입니다. 형식 검사 결과는 사실 정확도 평가가 아닙니다.",
-             "", "[실행 정보]", _text_block(document["session"])]
+    return document
+
+
+def _canonical(value):
+    """무손실 복원 확인에만 사용하는 일정한 JSON 표현입니다."""
+    return json.dumps(value, ensure_ascii=False, separators=(",", ":"),
+                      sort_keys=True, allow_nan=False)
+
+
+def compact_diagnostics_document(document):
+    """반복되는 긴 공개 문자열을 한 번 저장합니다. 내용이나 필드는 생략하지 않습니다."""
+    counts, singleton_keys = Counter(), set()
+
+    def count(value):
+        if isinstance(value, str):
+            if len(value) >= 96:
+                counts[value] += 1
+        elif isinstance(value, list):
+            for item in value:
+                count(item)
+        elif isinstance(value, dict):
+            if len(value) == 1:
+                singleton_keys.update(value)
+            for item in value.values():
+                count(item)
+
+    count(document)
+    # 실제 입력이 우연히 참조와 같은 모양이어도 원문 객체로 정확히 복원합니다.
+    reference_key = "$text"
+    while reference_key in singleton_keys:
+        reference_key += "_"
+    shared = {}
+    identifiers = {text: hashlib.sha256(text.encode("utf-8")).hexdigest()
+                   for text, times in counts.items() if times > 1}
+
+    def encode(value):
+        if isinstance(value, str) and value in identifiers:
+            identifier = identifiers[value]
+            shared[identifier] = value
+            return {reference_key: identifier}
+        if isinstance(value, list):
+            return [encode(item) for item in value]
+        if isinstance(value, dict):
+            return {key: encode(item) for key, item in value.items()}
+        return value
+
+    encoded = encode(document)
+    return {"schema": COPY_SCHEMA, "expanded_schema": SCHEMA,
+            "encoding": {"kind": "shared_text.v1", "reference_key": reference_key,
+                "restore": "document 안에서 reference_key 하나만 가진 객체를 shared_text의 해당 값으로 재귀 치환합니다. 문자열의 내용은 다시 해석하지 않습니다.",
+                "python": "from diagnostic_export import expand_diagnostics_document; expanded = expand_diagnostics_document(data)"},
+            "document_sha256": hashlib.sha256(_canonical(document).encode("utf-8")).hexdigest(),
+            "shared_text": shared, "document": encoded}
+
+
+def expand_diagnostics_document(value):
+    """예전 v1 문서와 새 v2 복사를 모두 읽고 기존 공개 필드를 복원합니다."""
+    if not isinstance(value, dict):
+        raise ValueError("진단 JSON은 객체여야 합니다.")
+    if value.get("schema") == SCHEMA:
+        return deepcopy(value)
+    encoding = _dict(value.get("encoding"))
+    if (value.get("schema") != COPY_SCHEMA or value.get("expanded_schema") != SCHEMA
+            or encoding.get("kind") != "shared_text.v1"):
+        raise ValueError("지원하지 않는 진단 복사 형식입니다.")
+    reference_key = encoding.get("reference_key")
+    shared = value.get("shared_text")
+    if not isinstance(reference_key, str) or not isinstance(shared, dict):
+        raise ValueError("진단 문자열 참조 정보가 없습니다.")
+    for identifier, text in shared.items():
+        if (not isinstance(identifier, str) or not isinstance(text, str)
+                or hashlib.sha256(text.encode("utf-8")).hexdigest() != identifier):
+            raise ValueError("진단 문자열의 내용 확인값이 일치하지 않습니다.")
+
+    def decode(item):
+        if isinstance(item, dict):
+            if set(item) == {reference_key}:
+                identifier = item[reference_key]
+                if not isinstance(identifier, str) or identifier not in shared:
+                    raise ValueError("진단 문자열 참조가 끊어졌습니다.")
+                return shared[identifier]
+            return {key: decode(child) for key, child in item.items()}
+        if isinstance(item, list):
+            return [decode(child) for child in item]
+        return item
+
+    restored = decode(value.get("document"))
+    digest = hashlib.sha256(_canonical(restored).encode("utf-8")).hexdigest()
+    if (not isinstance(restored, dict) or restored.get("schema") != SCHEMA
+            or digest != value.get("document_sha256")):
+        raise ValueError("진단 문서를 완전히 복원하지 못했습니다.")
+    return restored
+
+
+def build_copy_report(messages, turn_records, session_meta, current_state, live_diagnostics=None):
+    """사람용 대화·측정 요약과 모든 근거를 한 번에 복사합니다."""
+    document = build_diagnostics_document(messages, turn_records, session_meta, current_state, live_diagnostics)
+    session = document["session"]
+    lines = ["TRPG 전체 대화·테스트 기록", "형식: " + COPY_SCHEMA,
+        "미측정 값은 null입니다. 형식 검사 결과는 사실 정확도 평가가 아닙니다.",
+        "대화와 요약은 아래에, 모든 실제 요청·응답·근거·진행 기록은 마지막 JSON에 보존합니다.",
+        "같은 긴 원문은 shared_text에 한 번 저장하고 참조합니다. 누락이나 잘라내기가 아닙니다.",
+        "", "[실행 정보]",
+        "출력 " + _value(session.get("output_version")) + " / 모델 " + _value(session.get("model"))
+        + " / 양자화 " + _value(session.get("quantization")),
+        "GPU " + _value(session.get("gpu")) + " / 모델 해시 " + _value(session.get("model_digest")),
+        "실제 옵션", _text_block(session.get("options"))]
     if live_diagnostics is not None:
-        active = [row for row in document["live_requests"] if isinstance(row, dict) and row.get("pending")]
+        requests = document["live_requests"]
+        active = [row for row in requests if isinstance(row, dict) and row.get("pending")]
         lines.extend(["", "[현재 요청·진행 단계]", "진행 중 요청: " + str(len(active)) + "건",
-                      "대화·게임 상태는 마지막 확정 사본입니다. 아래 사본 경과 시간과 현재 요청 단계를 함께 확인합니다.",
-                      "확정 사본 정보", _text_block(document["diagnostic_snapshot"])])
-        for request in document["live_requests"]:
+            "대화·게임 상태는 마지막 확정 사본입니다. 진행 중 작업은 요청 기록과 함께 확인합니다.",
+            "확정 사본 정보", _text_block(document["diagnostic_snapshot"])])
+        for request in requests:
             if not isinstance(request, dict):
                 continue
-            lines.extend(["요청 " + _inline(request.get("request_id")) + " · " + _inline(request.get("kind"))
-                          + " · " + _inline(request.get("status")) + " · 현재 단계 " + _inline(request.get("stage"))
-                          + " · 경과 " + _value(request.get("elapsed_seconds"), "초"), _text_block(request)])
+            lines.append("요청 " + _inline(request.get("request_id")) + " · " + _inline(request.get("kind"))
+                + " · " + _inline(request.get("status")) + " · 단계 " + _inline(request.get("stage"))
+                + " · 경과 " + _value(request.get("elapsed_seconds"), "초"))
+            if request.get("error"):
+                lines.extend(["오류", _text_block(request["error"])])
     lines.extend(["", "[전체 공개 대화]"])
     for index, message in enumerate(document["conversation"], 1):
         name = "플레이어" if message["role"] == "user" else message.get("speaker") or "게임 마스터"
         lines.extend([f"{index}. {_inline(name)}", _text_block(message["content"])])
-    lines.extend(["", "[턴별 진단]"])
+    lines.extend(["", "[턴별 진단 요약]"])
     for index, turn in enumerate(document["turns"], 1):
         timing, tokens = turn["timing"], turn["tokens"]
         lines.extend([f"{index}. 턴 {_inline(turn['turn_id'])} · {_inline(turn['kind'])} · {_inline(turn['status'])}",
-            "입력", _text_block(turn["input"]),
-            "시간: 검색 " + _value(timing["search_seconds"], "초")
-            + " / 전달 JSON " + _value(timing["handoff_seconds"], "초")
-            + " / 생성 " + _value(timing["generation_seconds"], "초")
+            "입력: " + _value(turn["input"].get("text")),
+            "시간: 분류 " + _value(timing["classification_seconds"], "초")
+            + " / 검색 " + _value(timing["search_seconds"], "초")
+            + " / 본문 " + _value(timing["modelgen_seconds"], "초")
             + " / 교정 " + _value(timing["repair_seconds"], "초")
+            + " / 추천 " + _value(timing["followup_seconds"], "초")
             + " / 전체 " + _value(timing["total_seconds"], "초"),
-            "토큰: 입력 " + _value(tokens["input"]) + " / 출력 " + _value(tokens["output"]),
-            "전체 측정 항목", _text_block(timing),
-            "출력 버전", _text_block(turn["versions"]),
-            "실제 공개 모델 입력 · 질문/검색 질의/화자/단계/옵션", _text_block(turn["prompt_trace"]),
-            "표시된 응답", _text_block(turn["output"]["shown"]),
-            "화자별 블록", _text_block(turn["output"]["blocks"]),
-            "모델 초안", _text_block(turn["output"]["draft"]),
-            "모델 최종 원문", _text_block(turn["output"]["raw"]),
-            "공개 검색 자료: " + _value(turn["public_source_count"], "개"), _text_block(turn["sources_public"]),
-            "규칙·시나리오 검색 개수", _text_block(turn["sources_count"]),
-            "언어·형식 검사", _text_block(turn["output"]["guard"]),
-            "오류", _text_block(turn["output"]["error"]),
-            "생성 단계 측정", _text_block(turn["stage_metrics"]),
-            "추천 생성", _text_block(turn["recommendations"]),
-            "실제 엔진 결과", _text_block(turn["engine"]), ""])
-    lines.extend(["[현재 공개 상태]", _text_block(document["current_state"]), "", "[기계 판독용 JSON]",
-                  "```json", json.dumps(document, ensure_ascii=False, indent=2, allow_nan=False), "```"])
+            "토큰: 입력 " + _value(tokens["input"]) + " / 출력 " + _value(tokens["output"])
+            + " · 공개 근거 " + _value(turn["public_source_count"], "개")
+            + " · 본문 요청 " + str(len(turn.get("stage_metrics") or [])) + "회"])
+        if turn["output"].get("error"):
+            lines.extend(["오류", _text_block(turn["output"]["error"])])
+        guard = turn["output"].get("guard")
+        if guard and (guard.get("hard_issues") or guard.get("errors") or guard.get("warnings")):
+            lines.extend(["검사", _text_block(guard)])
+    lines.extend(["", "[현재 공개 상태]", _text_block(document["current_state"]),
+        "", "[기계 판독용 JSON]", "```json",
+        json.dumps(compact_diagnostics_document(document), ensure_ascii=False,
+                   separators=(",", ":"), allow_nan=False), "```"])
     return "\n".join(lines)
