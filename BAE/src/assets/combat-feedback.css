@@ -1,0 +1,45 @@
+/* 전투 그림은 35KB 정도의 공용 WebP 한 장을 각 적의 실제 종류로 나눠 표시합니다. */
+.enemy-line {display:flex;flex-wrap:wrap;gap:12px!important;align-items:stretch;}
+.enemy-token {position:relative;display:flex!important;flex-direction:column;align-items:center;gap:7px!important;
+    flex:0 0 126px;padding:8px!important;border:1px solid #66726b;border-radius:10px!important;
+    background:linear-gradient(160deg,#2a3532e8,#121c1aeb)!important;overflow:visible!important;}
+.monster-portrait {display:block!important;position:relative;width:112px!important;height:112px!important;
+    flex:0 0 auto!important;border-radius:7px;background-repeat:no-repeat;background-color:#1c2524;
+    box-shadow:0 2px 12px #0006;border:1px solid #80917b55;}
+.monster-portrait-fallback {display:flex!important;align-items:center;justify-content:center;font-size:12px;color:#acb5ad;}
+.enemy-caption {width:100%;text-align:center;line-height:1.4;}
+.enemy-caption b {display:block;font-size:14px;color:#eee9da;}
+.enemy-caption small {display:block;font-size:12px;color:#c7b6a0;}
+.enemy-token.is-out .monster-portrait {filter:grayscale(1);opacity:.45;}
+.enemy-token.is-out .enemy-caption {opacity:.65;}
+.trpg-combat-feedback {display:none!important;}
+/* 장면 안쪽에서만 연출합니다. 입력창과 버튼은 클릭을 계속 받을 수 있습니다. */
+#game-story-shell>.combat-fx-layer {position:absolute!important;inset:0!important;z-index:20!important;
+    pointer-events:none!important;overflow:hidden!important;border-radius:inherit;}
+#game-story-shell::after {content:"";position:absolute;inset:0;pointer-events:none;z-index:19;
+    border-radius:inherit;opacity:0;box-shadow:inset 0 0 65px 20px #b1222c,inset 0 0 7px 2px #e25146;}
+#game-story-shell.combat-player-hurt {animation:combat-hit-shake .30s ease-out;}
+#game-story-shell.combat-player-hurt::after {animation:combat-red-edge .48s ease-out;}
+.combat-enemy-hit .monster-portrait {animation:combat-target-impact .40s ease-out;}
+.combat-enemy-critical .monster-portrait {animation:combat-critical-impact .46s ease-out;}
+.combat-fx-number {position:absolute;z-index:24;font-weight:800;font-size:27px;line-height:1.1;
+    padding:3px 8px;white-space:nowrap;text-shadow:0 2px 4px #000,0 0 12px #000b;
+    animation:combat-number-rise .95s ease-out both;pointer-events:none;}
+.combat-fx-incoming {left:50%;top:42%;color:#ff8c83;transform:translateX(-50%);}
+.combat-fx-outgoing {left:50%;top:32%;color:#ffe8ad;transform:translateX(-50%);font-size:24px;}
+.combat-fx-neutral {left:50%;top:29%;color:#d3dfd5;transform:translateX(-50%);font-size:19px;}
+.combat-hit-slash {position:absolute;left:48%;top:9%;width:4px;height:102px;z-index:23;
+    border-radius:50%;background:linear-gradient(transparent,#fff5c1,#fff,transparent);
+    box-shadow:0 0 9px #ffe1a8;transform:rotate(38deg);animation:combat-slash .35s ease-out both;pointer-events:none;}
+.combat-last-target {position:absolute!important;right:18px;top:18px;width:128px!important;
+    opacity:1;animation:combat-last-target-fade 1s ease-out both;}
+@keyframes combat-hit-shake {0%,100%{transform:translate(0,0)}20%{transform:translate(-3px,1px)}40%{transform:translate(3px,-1px)}60%{transform:translate(-2px,0)}80%{transform:translate(1px,1px)}}
+@keyframes combat-red-edge {0%{opacity:.85}20%{opacity:.68}100%{opacity:0}}
+@keyframes combat-target-impact {0%{filter:brightness(2.1);transform:translateX(0)}20%{transform:translateX(4px);filter:brightness(1.7)}55%{transform:translateX(-2px)}100%{filter:brightness(1);transform:translateX(0)}}
+@keyframes combat-critical-impact {0%{filter:brightness(2.6);transform:scale(1.035)}30%{transform:translateX(5px);filter:brightness(1.9)}65%{transform:translateX(-3px)}100%{filter:brightness(1);transform:translateX(0)}}
+@keyframes combat-number-rise {0%{opacity:0;margin-top:10px}15%{opacity:1}75%{opacity:1}100%{opacity:0;margin-top:-28px}}
+@keyframes combat-slash {0%{opacity:0;clip-path:inset(0 0 100% 0)}30%{opacity:1;clip-path:inset(0)}100%{opacity:0;clip-path:inset(0)}}
+@keyframes combat-last-target-fade {0%,65%{opacity:1}100%{opacity:0}}
+@media(max-width:700px){.enemy-token{flex-basis:92px;padding:6px!important}.monster-portrait{width:78px!important;height:78px!important}.enemy-caption b{font-size:12px}.combat-fx-number{font-size:23px}.combat-hit-slash{height:72px}.combat-last-target{width:102px!important}}
+/* 시스템에서 움직임 줄이기를 선택했다면 흔들림·이동 없이 색과 숫자만 짧게 표시합니다. */
+@media(prefers-reduced-motion:reduce){#game-story-shell.combat-player-hurt,.combat-enemy-hit .monster-portrait,.combat-enemy-critical .monster-portrait,.combat-fx-number,.combat-hit-slash,.combat-last-target{animation:none!important}.combat-hit-slash{display:none}.combat-fx-number{opacity:1}#game-story-shell.combat-player-hurt::after{animation:none;opacity:.35}}
