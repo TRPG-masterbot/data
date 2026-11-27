@@ -1,0 +1,276 @@
+{
+  "_source": "상점 가격·재고는 시나리오 카드 scn-m-shop-goods를 유지합니다. 시작 소유품은 starting_equipment.json의 클래스·배경 장비 A에서 가져옵니다. 돈은 cp 단위(1gp=100cp, 1sp=10cp)입니다.",
+  "items": {
+    "rope": {
+      "name": "밧줄",
+      "price_cp": 100,
+      "stock": null
+    },
+    "iron_spikes": {
+      "name": "쐐기 (Iron Spikes)",
+      "price_cp": 100,
+      "stock": null
+    },
+    "net": {
+      "name": "그물",
+      "price_cp": 100,
+      "stock": null
+    },
+    "caltrops": {
+      "name": "마름쇠",
+      "price_cp": 100,
+      "stock": null
+    },
+    "oil": {
+      "name": "기름",
+      "price_cp": 10,
+      "stock": null
+    },
+    "torch": {
+      "name": "횃불",
+      "price_cp": 1,
+      "stock": null
+    },
+    "rations": {
+      "name": "식량",
+      "price_cp": 50,
+      "stock": null
+    },
+    "hooded_lantern": {
+      "name": "후드 랜턴",
+      "price_cp": 500,
+      "stock": null
+    },
+    "backpack": {
+      "name": "배낭",
+      "price_cp": 200,
+      "stock": null
+    },
+    "crowbar": {
+      "name": "쇠지렛대",
+      "price_cp": 200,
+      "stock": null
+    },
+    "thieves_tools": {
+      "name": "도둑 도구",
+      "price_cp": 2500,
+      "stock": null
+    },
+    "climbing_gear": {
+      "name": "등반 장비",
+      "price_cp": 2500,
+      "stock": null
+    },
+    "healers_kit": {
+      "name": "응급 처치 도구 (Healer's Kit)",
+      "price_cp": 500,
+      "stock": null,
+      "uses": 10
+    },
+    "potion_healing": {
+      "name": "회복약 (Potion of Healing)",
+      "price_cp": 5000,
+      "stock": 2,
+      "use": {
+        "heal": "2d4+2",
+        "label": "Potion of Healing을 마신다 (2d4+2 HP 회복)",
+        "source": "SRD p.99 / 원본 scn-m-shop-goods: 보너스 행동, 2d4+2"
+      }
+    },
+    "antitoxin": {
+      "name": "해독제 (Antitoxin)",
+      "price_cp": 5000,
+      "stock": 1,
+      "use": {
+        "condition": "antitoxin",
+        "minutes": 60,
+        "label": "Antitoxin을 마신다 (1시간 동안 중독 구원에 이점)",
+        "source": "SRD p.94: 보너스 행동, 1시간 동안 중독을 피하거나 끝내는 구원에 이점"
+      }
+    },
+    "holy_water": {
+      "name": "성수 (Holy Water)",
+      "price_cp": 2500,
+      "stock": 0
+    },
+    "periapt_wound_closure": {
+      "name": "상처 봉합의 부적 (Periapt of Wound Closure)",
+      "magic": true,
+      "_source": "원본 scn-h-fighter-periapt: 죽음 구원 9 이하 → 10, Hit Point Die 회복 두 배. 동조 절차 생략 [보완 W7]"
+    },
+    "rina_doll": {
+      "name": "리나의 인형",
+      "quest": true
+    },
+    "study_key": {
+      "name": "서재 서랍 열쇠",
+      "quest": true
+    },
+    "quarry_map": {
+      "name": "채석장 시절의 도면",
+      "quest": true
+    },
+    "shortbow": {
+      "name": "숏보우",
+      "_source": "SRD 5.2 시작 장비 A 또는 배경 A의 소유품. 별도 상점 판매 목록에는 추가하지 않습니다."
+    },
+    "chain_shirt": {
+      "name": "체인 셔츠",
+      "_source": "SRD 5.2 시작 장비 A 또는 배경 A의 소유품. 별도 상점 판매 목록에는 추가하지 않습니다."
+    },
+    "javelin": {
+      "name": "투창",
+      "_source": "SRD 5.2 시작 장비 A 또는 배경 A의 소유품. 별도 상점 판매 목록에는 추가하지 않습니다."
+    },
+    "chain_mail": {
+      "name": "사슬 갑옷",
+      "_source": "SRD 5.2 시작 장비 A 또는 배경 A의 소유품. 별도 상점 판매 목록에는 추가하지 않습니다."
+    },
+    "lamp": {
+      "name": "램프",
+      "_source": "SRD 5.2 시작 장비 A 또는 배경 A의 소유품. 별도 상점 판매 목록에는 추가하지 않습니다."
+    },
+    "dagger": {
+      "name": "단검",
+      "_source": "SRD 5.2 시작 장비 A 또는 배경 A의 소유품. 별도 상점 판매 목록에는 추가하지 않습니다."
+    },
+    "ink_pen": {
+      "name": "잉크 펜",
+      "_source": "SRD 5.2 시작 장비 A 또는 배경 A의 소유품. 별도 상점 판매 목록에는 추가하지 않습니다."
+    },
+    "ball_bearings": {
+      "name": "쇠구슬 한 봉지",
+      "_source": "SRD 5.2 시작 장비 A 또는 배경 A의 소유품. 별도 상점 판매 목록에는 추가하지 않습니다."
+    },
+    "arcane_focus_quarterstaff": {
+      "name": "비전 매개체(쿼터스태프)",
+      "_source": "SRD 5.2 시작 장비 A 또는 배경 A의 소유품. 별도 상점 판매 목록에는 추가하지 않습니다."
+    },
+    "shield": {
+      "name": "방패",
+      "_source": "SRD 5.2 시작 장비 A 또는 배경 A의 소유품. 별도 상점 판매 목록에는 추가하지 않습니다."
+    },
+    "greatsword": {
+      "name": "대검",
+      "_source": "SRD 5.2 시작 장비 A 또는 배경 A의 소유품. 별도 상점 판매 목록에는 추가하지 않습니다."
+    },
+    "book_history": {
+      "name": "역사책",
+      "_source": "SRD 5.2 시작 장비 A 또는 배경 A의 소유품. 별도 상점 판매 목록에는 추가하지 않습니다."
+    },
+    "parchment": {
+      "name": "양피지",
+      "_source": "SRD 5.2 시작 장비 A 또는 배경 A의 소유품. 별도 상점 판매 목록에는 추가하지 않습니다."
+    },
+    "travelers_clothes": {
+      "name": "여행자 의복",
+      "_source": "SRD 5.2 시작 장비 A 또는 배경 A의 소유품. 별도 상점 판매 목록에는 추가하지 않습니다."
+    },
+    "tinderbox": {
+      "name": "부싯깃 통",
+      "_source": "SRD 5.2 시작 장비 A 또는 배경 A의 소유품. 별도 상점 판매 목록에는 추가하지 않습니다."
+    },
+    "ink": {
+      "name": "잉크 한 병",
+      "_source": "SRD 5.2 시작 장비 A 또는 배경 A의 소유품. 별도 상점 판매 목록에는 추가하지 않습니다."
+    },
+    "leather": {
+      "name": "가죽 갑옷",
+      "_source": "SRD 5.2 시작 장비 A 또는 배경 A의 소유품. 별도 상점 판매 목록에는 추가하지 않습니다."
+    },
+    "holy_symbol": {
+      "name": "성표",
+      "_source": "SRD 5.2 시작 장비 A 또는 배경 A의 소유품. 별도 상점 판매 목록에는 추가하지 않습니다."
+    },
+    "mace": {
+      "name": "메이스",
+      "_source": "SRD 5.2 시작 장비 A 또는 배경 A의 소유품. 별도 상점 판매 목록에는 추가하지 않습니다."
+    },
+    "spellbook": {
+      "name": "주문책",
+      "_source": "SRD 5.2 시작 장비 A 또는 배경 A의 소유품. 별도 상점 판매 목록에는 추가하지 않습니다."
+    },
+    "arrows": {
+      "name": "화살",
+      "_source": "SRD 5.2 시작 장비 A 또는 배경 A의 소유품. 별도 상점 판매 목록에는 추가하지 않습니다."
+    },
+    "shortsword": {
+      "name": "숏소드",
+      "_source": "SRD 5.2 시작 장비 A 또는 배경 A의 소유품. 별도 상점 판매 목록에는 추가하지 않습니다."
+    },
+    "quiver": {
+      "name": "화살통",
+      "_source": "SRD 5.2 시작 장비 A 또는 배경 A의 소유품. 별도 상점 판매 목록에는 추가하지 않습니다."
+    },
+    "candle": {
+      "name": "양초",
+      "_source": "SRD 5.2 시작 장비 A 또는 배경 A의 소유품. 별도 상점 판매 목록에는 추가하지 않습니다."
+    },
+    "calligraphers_supplies": {
+      "name": "서예가 도구",
+      "_source": "SRD 5.2 시작 장비 A 또는 배경 A의 소유품. 별도 상점 판매 목록에는 추가하지 않습니다."
+    },
+    "book": {
+      "name": "책",
+      "_source": "SRD 5.2 시작 장비 A 또는 배경 A의 소유품. 별도 상점 판매 목록에는 추가하지 않습니다."
+    },
+    "blanket": {
+      "name": "담요",
+      "_source": "SRD 5.2 시작 장비 A 또는 배경 A의 소유품. 별도 상점 판매 목록에는 추가하지 않습니다."
+    },
+    "quarterstaff": {
+      "name": "쿼터스태프",
+      "_source": "SRD 5.2 시작 장비 A 또는 배경 A의 소유품. 별도 상점 판매 목록에는 추가하지 않습니다."
+    },
+    "flail": {
+      "name": "도리깨",
+      "_source": "SRD 5.2 시작 장비 A 또는 배경 A의 소유품. 별도 상점 판매 목록에는 추가하지 않습니다."
+    },
+    "bell": {
+      "name": "작은 종",
+      "_source": "SRD 5.2 시작 장비 A 또는 배경 A의 소유품. 별도 상점 판매 목록에는 추가하지 않습니다."
+    },
+    "dice_set": {
+      "name": "다이스 한 벌",
+      "_source": "SRD 5.2 시작 장비 A 또는 배경 A의 소유품. 별도 상점 판매 목록에는 추가하지 않습니다."
+    },
+    "book_prayers": {
+      "name": "기도서",
+      "_source": "SRD 5.2 시작 장비 A 또는 배경 A의 소유품. 별도 상점 판매 목록에는 추가하지 않습니다."
+    },
+    "robe": {
+      "name": "로브",
+      "_source": "SRD 5.2 시작 장비 A 또는 배경 A의 소유품. 별도 상점 판매 목록에는 추가하지 않습니다."
+    },
+    "waterskin": {
+      "name": "물주머니",
+      "_source": "SRD 5.2 시작 장비 A 또는 배경 A의 소유품. 별도 상점 판매 목록에는 추가하지 않습니다."
+    },
+    "pouch": {
+      "name": "주머니",
+      "_source": "SRD 5.2 시작 장비 A 또는 배경 A의 소유품. 별도 상점 판매 목록에는 추가하지 않습니다."
+    },
+    "spear": {
+      "name": "창",
+      "_source": "SRD 5.2 시작 장비 A 또는 배경 A의 소유품. 별도 상점 판매 목록에는 추가하지 않습니다."
+    }
+  },
+  "shop_order": [
+    "rope",
+    "iron_spikes",
+    "net",
+    "caltrops",
+    "oil",
+    "torch",
+    "rations",
+    "hooded_lantern",
+    "backpack",
+    "crowbar",
+    "thieves_tools",
+    "climbing_gear",
+    "healers_kit",
+    "potion_healing",
+    "antitoxin",
+    "holy_water"
+  ]
+}

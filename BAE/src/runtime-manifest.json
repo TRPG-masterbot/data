@@ -1,0 +1,194 @@
+{
+  "schema": "bae_runtime_files.v22",
+  "version": "output-v22-20261125",
+  "files": {
+    "action_requirements.py": {
+      "bytes": 5711,
+      "sha256": "0caedba28b7d0c14ac209cbbf52ce20f7239aadc7812e436d46125f6eb1306c6"
+    },
+    "assets/backgrounds/echo_town_scenes.webp": {
+      "bytes": 154216,
+      "sha256": "9ff8a606f61a7302e1d6bedf4dc1a07bea349e1fe1d726aed77090982a8da255"
+    },
+    "assets/backgrounds/well-interior-v12.webp": {
+      "bytes": 28004,
+      "sha256": "6fac7be058c0a9b194de71e5416504900ae188932bf1a89eab43c6d225ed9241"
+    },
+    "assets/portraits/gran-v12.webp": {
+      "bytes": 2154,
+      "sha256": "09b9283da1aea2b15b8c9b22ccee77618b3c971de52bd6f5645cf2661784345b"
+    },
+    "assets/portraits/halvik-v12.webp": {
+      "bytes": 1938,
+      "sha256": "34976abc417ccf8f747439143863be3cd2d4a9a9f7669716e94eb0a95446b176"
+    },
+    "assets/portraits/mera.webp": {
+      "bytes": 1562,
+      "sha256": "ed3dc72f0685f4c96186f7bd70ab5758e923d4630523675fda904f03a49484ed"
+    },
+    "assets/portraits/odan-v12.webp": {
+      "bytes": 3222,
+      "sha256": "8c89aad0be6dc268c50fd614022c7918a8dbd65dddb4f685e463af097ebb4e90"
+    },
+    "assets/portraits/sera.webp": {
+      "bytes": 1736,
+      "sha256": "437e0af009a6f6d6b38e316b7d029039c9fb261e6297749edc557ba1628211ac"
+    },
+    "campaign_flow.py": {
+      "bytes": 2155,
+      "sha256": "d11bdefc84d477d237021d409c67c82a721ccea5afde7e855dcb11e19495b95d"
+    },
+    "diagnostic_export.py": {
+      "bytes": 27567,
+      "sha256": "dbe293b754309cb53abd3ca8233f4643bb3cbf61607af802555bb4f7f3ab2a30"
+    },
+    "diagnostics_live.py": {
+      "bytes": 11747,
+      "sha256": "839c6d8b4a386f017994ccdfed1ac4ce6554d619ecf854938ea3e3f16ec70341"
+    },
+    "game/__init__.py": {
+      "bytes": 1163,
+      "sha256": "bacad40ec16ff5acdc0e1a7f6ed6407c75b24f5584fb7abeaf5dbd7fb6dc2deb"
+    },
+    "game/combat.py": {
+      "bytes": 48398,
+      "sha256": "8aa36a6c676774cfc4b2dc46bf4d19d29ec191965eb8b921023724f020527e0d"
+    },
+    "game/content.py": {
+      "bytes": 8494,
+      "sha256": "4a5fde09a5ecc4bbc1fa723ecb016d171ffcf48b349d21a5049fb6a1f5c17b3d"
+    },
+    "game/data/cards.json": {
+      "bytes": 214445,
+      "sha256": "dfc7dcce28e3a30d255721f203e61e1182c22ba672c7f73e79276dd595af2753"
+    },
+    "game/data/characters.json": {
+      "bytes": 4787,
+      "sha256": "4a867433ff952fd540723a680ac1b2146092107da458047e1a641a24ccddec6a"
+    },
+    "game/data/encounters.json": {
+      "bytes": 5374,
+      "sha256": "9711233d0c26c9a3b1e81899ef75db34bb1c03ddf9b74337edd66b45b0b8a53d"
+    },
+    "game/data/items.json": {
+      "bytes": 10216,
+      "sha256": "a000692e31705905f0d21871293bd4768851db06f69942ed09e920e39878b623"
+    },
+    "game/data/monsters.json": {
+      "bytes": 8121,
+      "sha256": "139f3ff70538ded630dcafae599a8f0b4e724eba233ee93f95145e0ee2837e5c"
+    },
+    "game/data/rules.json": {
+      "bytes": 5142,
+      "sha256": "dea1352b596d8f16cd42162425a7a4352830b8a4e5377c80d02b95ae5a5adb6e"
+    },
+    "game/data/scene1.json": {
+      "bytes": 40311,
+      "sha256": "70b42b3f7a237263cd2c59b59acc9895d47cb319e5696824943e555478e10b50"
+    },
+    "game/data/scene2.json": {
+      "bytes": 19480,
+      "sha256": "0adbffea45469e05e7599026600dca7f96d40c11132e18f5e4456290eb159e07"
+    },
+    "game/data/starting_equipment.json": {
+      "bytes": 8016,
+      "sha256": "57ee32c185483bea0b2f787083df93204d3d772e21c0bb35728f6b97748aff53"
+    },
+    "game/data/traps.json": {
+      "bytes": 5718,
+      "sha256": "5bf1ff662e3a9a9f5a08e08e1d1642f5c30235a505b1661fdbad29a77a67b465"
+    },
+    "game/dice.py": {
+      "bytes": 3530,
+      "sha256": "d59a34318934531f8f6a0cc69e520c1d8c0090b9dca03f0ded587c069ab798e6"
+    },
+    "game/engine.py": {
+      "bytes": 58897,
+      "sha256": "3a98e046168f8dfce5a2fb498de0d1c4b0c031f68a3dc1e7de8dffc9a872434b"
+    },
+    "game/events.py": {
+      "bytes": 1949,
+      "sha256": "d785e470d4577fbd85442e5a29dd857f48b2f71b9a46b57c252fd4d5a99cd312"
+    },
+    "game/model.py": {
+      "bytes": 7806,
+      "sha256": "ed4c06eb01f3ada48374d024972cc2740fc309861989b6b63d60c67349cb6817"
+    },
+    "game/social.py": {
+      "bytes": 6789,
+      "sha256": "d1943a4de9aba1b0702129d7c90cb74f7c2ae89098b7aa5e1cc0b52781439137"
+    },
+    "game/startup.py": {
+      "bytes": 4475,
+      "sha256": "3aaf17d55a32cba24f09e2ecca2b63e443e8a5b6b318b6bcd147bbba73801634"
+    },
+    "game_ui.py": {
+      "bytes": 146135,
+      "sha256": "ab9b3b699560a51558366e7edc727e275a582c9585ac83dab37392c13c95ea7e"
+    },
+    "gameplay.py": {
+      "bytes": 247472,
+      "sha256": "d74b0e431162961cbbbfc966833b3664196276381fd91c71c54573c7decf1174"
+    },
+    "navigation_contract.py": {
+      "bytes": 2553,
+      "sha256": "16ceace7816be61203749678f9f5195ec2e3cd2b1a9b0f78770f29155c017484"
+    },
+    "ollama_backend.py": {
+      "bytes": 10769,
+      "sha256": "fa32c60bf176a723c9e34727b9675af141dc51c638186af69a6c5a5f88d2dd0e"
+    },
+    "output_helpers/context_helpers.py": {
+      "bytes": 46613,
+      "sha256": "5d1295001fcddf7920bc7d78db8b45987e6a7986a2ded05932cdd2f0d3f86266"
+    },
+    "output_helpers/execution_control.py": {
+      "bytes": 2570,
+      "sha256": "39424d8dbc33282d5c7f4ea78ea81dd71a45fd4dd96f377a4f7c100cc2af5c9b"
+    },
+    "output_helpers/generation_helpers.py": {
+      "bytes": 36581,
+      "sha256": "e382d3ceda4e456d1af137fd3a3cc0c8ec5cae8b58a4ed48bc4ec0722ae9a5be"
+    },
+    "output_helpers/gui_bridge.py": {
+      "bytes": 9719,
+      "sha256": "ad79b36ff9780defd4655dcbba7395a3ea262623f1aaf73a22164d33f04b44e8"
+    },
+    "output_helpers/input_helpers.py": {
+      "bytes": 5208,
+      "sha256": "4ac14961aad0fb9b00f198bf262f7eb43e06a8f45da8192df26cf58fbfdf5560"
+    },
+    "output_helpers/response_validation.py": {
+      "bytes": 17385,
+      "sha256": "aac51fe908f8907ab1a05126fc11e7eebe7e716c6d59e7f10f30bd467d8ecb29"
+    },
+    "play_view.py": {
+      "bytes": 16626,
+      "sha256": "3c037ad057e19d776c73bd1b2a3b1198a3c20ce2b080f46ed880ec63ccc1f93b"
+    },
+    "portrait_view.py": {
+      "bytes": 16414,
+      "sha256": "a1623b2d787c7d5a619b6f87864cfaab60906f2ca975a809983fcd4b87f608f8"
+    },
+    "query_contract.py": {
+      "bytes": 8229,
+      "sha256": "0a80ef78ae07f55588d26cf90f27ced57a5df5fbdedc7b4d2916697489934a1a"
+    },
+    "runtime_setup.py": {
+      "bytes": 9138,
+      "sha256": "78fbd983e1be16f46ecfa29f652d136de29069990b74f00137fb20376136ad34"
+    },
+    "save_contract.py": {
+      "bytes": 29159,
+      "sha256": "b4065792aeb59f7266114a99d330b3625aee9805155e007a0823f4b2457efae4"
+    },
+    "state_projection.py": {
+      "bytes": 19647,
+      "sha256": "18a483b5b45fcbf6821c4a17e9ccfd38583a3e94c4e3a3458f1c2332feaf4243"
+    },
+    "transaction_bindings.json": {
+      "bytes": 598,
+      "sha256": "16083341ec336a7103d4dac771683ef3cab6cc22e931f4a3458531163c241785"
+    }
+  }
+}
