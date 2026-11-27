@@ -1,13 +1,1 @@
-<h3>저장소 설정</h3>
-
-<ul>
-  <li>
-    <small>Github 내부의 폴더에 팀원들의 성(영어명)으로 분류했습니다.</small>
-  </li>
-  <li>
-    <small>
-      Commit 설명으로 적으신 코드 설명은 갱신/수정할 때마다 사라지므로<br>
-      ReadME.md 파일에 정리해 폴더에 들어갔을 때, 아래에 텍스트가 나타나도록 했습니다.
-    </small>
-  </li>
-</ul>
+<h1 align="center"> TRPG 마스터봇</h1> <p align="center"><b>D&amp;D 5e 룰북과 시나리오를 근거로 게임을 진행하는 AI 게임 마스터</b><br>Team DICE</p> <!-- 게임 화면 캡처로 교체 --> <p align="center"><img src="docs/screen.png" width="720" alt="게임 화면"></p> <h2>구조</h2> <pre> 플레이어 입력 → 입력 분류 ┬ 룰북 RAG ┐ └ 시나리오 RAG ┴→ 출력 (대사·장면) → 게임 화면 </pre> <h2>기술 스택</h2> <p>qwen3.5:9b (Ollama) · bge-m3 · multilingual-e5-small · Chroma · BM25 · LangGraph · Gradio · Colab</p> <h2>실행</h2> <ol> <li>Colab에서 노트북 열기 → GPU 런타임 (L4 권장)</li> <li>맨 위 셀부터 순서대로 실행 (<code>##9</code>·<code>##12</code>는 Enter, <code>I4</code>는 <code>exit</code>)</li> <li><code>O9</code> 실행 → 게임 화면</li> </ol> <h2>파트</h2> <table> <tr><th>파트</th><th>담당</th><th>내용</th></tr> <tr><td>룰북 RAG</td><td>민관기</td><td>룰 질문 → 검증된 룰북 근거</td></tr> <tr><td>시나리오 RAG</td><td>김재혁</td><td>지금 볼 수 있는 시나리오 카드 검색</td></tr> <tr><td>입력</td><td>장우창</td><td>입력 분류 · 두 RAG 통합 검색</td></tr> <tr><td>출력</td><td>배준호</td><td>대사·장면 생성 · 게임 화면</td></tr> </table> <p>파트별 상세와 버전 기록은 각 폴더(<code>Min</code>, <code>Kim</code>, …)를 참고하세요.</p>
